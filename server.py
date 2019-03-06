@@ -18,6 +18,10 @@ def roomInit():
 def room(id):
     return render_template("canvas.html")
 
+@app.route('/room/callback', methods=['POST', 'GET'])
+def callback():
+    print(request.json)
+    return str(request.json)
 
 if __name__ == '__main__':
     app.config['DEBUG'] = True
