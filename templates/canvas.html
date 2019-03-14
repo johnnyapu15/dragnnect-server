@@ -2,6 +2,10 @@
 <!DOCTYPE HTML>
 <html>
   <head>
+    <script>
+      var count = {{ count }}
+      var room_id = {{ room_id }}
+    </script>
     <style>
       body {
         margin: 0px;
@@ -19,8 +23,22 @@
       <div id="paint" style="
         width: 100%;
         height: 100%;">
+      TEST
+
   		<canvas id="myCanvas"></canvas>
-	</div>
+  </div>
+    
     <script type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+    <script>
+      document.getElementById("paint").innerHTML = "TEST " + count;
+      window.addEventListener("beforeunload", function (evt) {
+        var http = new XMLHttpRequest();
+        http.open('POST', "quit", true);
+        http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+        data = {};
+        data['id'] = room_id;
+        http.send(JSON.stringify(data));
+      });
+    </script>
   </body>
 </html>            

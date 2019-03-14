@@ -64,7 +64,6 @@ canvas.addEventListener('touchend', function(evt) {
   http.open('POST', "callback", true);
   http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
   http.send(JSON.stringify(data));
-
 }, false);
 
 var onTouchPaint = function(evt) {
