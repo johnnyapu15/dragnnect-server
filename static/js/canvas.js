@@ -77,3 +77,19 @@ var onPaint = function() {
     ctx.lineTo(mouse.x, mouse.y);
     ctx.stroke();
 };
+
+window.addEventListener("beforeunload", function (evt) {
+  var socket = io.connect('http://' + document.domain + ':' + location.port);
+  var http = new XMLHttpRequest();
+  http.open('POST', "quit", true);
+  http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+  data = {};
+  data['id'] = room_id;
+  data['count'] = count;
+  http.send(JSON.stringify(data));
+  // var socket = io.connect('http://' + document.domain + ':' + location.port);
+  // data = {};
+  // data['id'] = room_id;
+  // data['count'] = count;
+  // socket.emit('leave', {data: data});
+});

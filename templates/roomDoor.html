@@ -24,7 +24,22 @@
 </div>
 
     <button class="w3-button w3-block w3-section w3-blue w3-ripple w3-padding">Send2</button>
-
+    <!-- <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+      function send() {
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        data = {};
+        data['id'] = document.getElementById("room_id").value;
+        data['email'] = document.getElementById("email").value;
+        //socket.on('connect', function() {
+          socket.emit('join', {data: data});
+        //});
+        socket.on('redirect', function (data) {
+          window.location = data.url;
+        });
+      }
+      
+    </script> -->
 </form>
 
 </body>
