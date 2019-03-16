@@ -1,64 +1,72 @@
 
 <!DOCTYPE HTML>
-<html>
+<html style="height: 100%">
+  
   <head>
-    <script>
-      var count = {{ count }}
-      var room_id = {{ room_id }}
-    </script>
-    <style>
-      body {
-        margin: 0px;
-        padding: 0px;
-        width: 100%;
-        height: 100%;
-        left: 0;
-        top: 0;
-        position: fixed;
-        background-color: #392f31;
-      }
-    </style>
-  </head>
-  <body>
-      <div id="paint" style="
-        width: 100%;
-        height: 100%;">
-      TEST
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
 
-  		<canvas id="myCanvas"></canvas>
-  </div>
-    
-    <script type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
-    <script type="text/javascript" charset="utf-8">
-      document.getElementById("paint").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;
-
-      
-    </script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+
     <script type="text/javascript" charset="utf-8">
+      var count = {{ count }};
+      var room_id = {{ room_id }};
       var socket = io.connect('http://' + document.domain + ':' + location.port);
-      // data = {};
-      // data['id'] = room_id;
-      // data['count'] = count;
       socket.on('update', function(data) {
         count = data.count;
-        document.getElementById("paint").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;
+        document.getElementById("textarea").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;
       });
-      //socket.emit('quit', {data: data});
-    </script>
-    
-    <script type="text/javascript" charset="utf-8">
-      var socket = io.connect('http://' + document.domain + ':' + location.port);
       data = {};
       data['id'] = room_id;
+      socket.on('connect', function() {
+        socket.emit('join', {data: data});
+      });
+      function leave() {
+        socket.emit('leave');
+        history.back();
+      };
+
+      
 
       //socket.on('connect', function() {
-      socket.emit('join', {data: data});
+      
       //});
       socket.on('redirect', function (data) {
         window.location = data.url;
       });
+
       
     </script>
+    <style>
+      
+    </style>
+  </head>
+  <body>
+    
+      <!-- <div id="textarea"
+        >
+      TEST
+    </div> -->
+    <div style="position: absolute; height:100%; width:100%;">
+      <div id = "canvas" style="
+        left: 0;
+        top: 0;
+        width: 100%; height:80%; position: relative;">
+        <canvas id="myCanvas" class = "canvas"></canvas>
+      </div>
+      <div id = "textarea" class="centered">
+      </div>
+      <div class="centered">
+          <a class="hrefText " lang="en" onClick="leave()" 
+          >DELETE BUS MODULE</a>
+      </div>
+    </div>
+    
+    
+    <script type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+
+    <script type="text/javascript" charset="utf-8">
+      document.getElementById("textarea").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;
+    </script>
+  
   </body>
 </html>            

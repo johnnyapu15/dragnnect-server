@@ -71,9 +71,13 @@ class DeviceArrangement:
         self.line = LineData()
         self.width = 0
         self.height = 0
+        self.timestamp = 0
     def __str__(self):
         ret = ""
-        ret += "Position: " + str(self.pos.x) + ", " + str(self.pos.y) + ", " + str(self.pos.z)
+        ret += "Device_id: " + str(self.device_id)
+        ret += "\nSize: " + str(self.width) + ", " + str(self.height)
+        ret += "\nTimestamp: " + str(self.timestamp)
+        ret += "\nPosition: " + str(self.pos.x) + ", " + str(self.pos.y) + ", " + str(self.pos.z)
         ret += "\nRotation: " + str(self.rot.x) + ", " + str(self.rot.y) + ", " + str(self.rot.z)
         return ret
     def __repr__(self):
@@ -109,14 +113,21 @@ class DeviceArrangement:
         p2 = p0 + Point(0, self.height).getRotated(self.rot.z)
         p3 = Point(p1.x, p2.y)
         return [p0, p1, p2, p3]
-    def setUsingLine(_pre_dev, _next_dev, _delta):
-        [r, p] = _pre_dev.calcUsingLine(_next_dev.line, _delta)
+    def setUsingLine(_pre_dev, _next_dev):
+        [r, p] = _pre_dev.calcUsingLine(_next_dev.line, _next_dev.timestamp - _pre_dev.timestamp)
         _next_dev.rot = r
         _next_dev.pos.x += p.x
         _next_dev.pos.z += p.y
 
         
-        
+def sortDevicesByTime(lists):
+    if type(lists) == list:
+        for e in lists:
+            if type(e) != DeviceArrangement:
+                print("No dev object.")
+                return
+        #for e in lists:
+
 
 
 # TEST DATA
@@ -138,7 +149,7 @@ d2 = DeviceArrangement(2)
 d2.line = l2
 d2.setDeviceSize(10, 7)
 
-DeviceArrangement.setUsingLine(d2, d1, 6)
+DeviceArrangement.setUsingLine(d1, d2)
 
 print(d1)
 print(d2)
