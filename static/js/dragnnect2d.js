@@ -17,7 +17,8 @@ var dragnnect2d_mouse = {x: 0, y: 0};
 dragnnect2d_ctx.lineWidth = 3;
 dragnnect2d_ctx.lineJoin = 'round';
 dragnnect2d_ctx.lineCap = 'round';
-dragnnect2d_ctx.strokeStyle = '#00ac00';
+dragnnect2d_ctx.strokeStyle = '#9BA1A8';
+dragnnect2d_ctx.fillStyle = '#9BA1A8';
 var dragnnect2d_data = {};
 
 socket.on('draw', function(data) {
@@ -27,13 +28,19 @@ socket.on('draw', function(data) {
 
 function dragnnect2d_draw(devs) {
     if (dragnnect2d_canvas.getContext) {
+      var i = 0;
       devs.forEach(dev => {
+        dragnnect2d_ctx.font = "30px Arial";
+        dragnnect2d_ctx.fillStyle = '#5A6068';
+        dragnnect2d_ctx.fillText(i, dev[0][0]/10 + w, dev[0][1]/10 + h + 30);
         dragnnect2d_ctx.beginPath();
         dragnnect2d_ctx.moveTo(dev[0][0]/10 + w, dev[0][1]/10 + h);
         dev.forEach(pnt => {
           dragnnect2d_ctx.lineTo(pnt[0]/10 + w, pnt[1]/10 + h);
         });
+        dragnnect2d_ctx.fillStyle = '#9BA1A8';
         dragnnect2d_ctx.fill();
+        i++;
       });
       
       

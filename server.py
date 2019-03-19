@@ -5,7 +5,7 @@ json, redirect, url_for
 import flask_socketio as si
 from datetime import datetime
 
-from pythons.liner import *
+from pythons.dragnnect import *
 
 
 app = Flask(__name__)
@@ -16,8 +16,8 @@ socketio = si.SocketIO(app, manage_session=False)
 # GLOBAL VAR
 room_count = dict()
 room = dict() # Device object list of room
-room_indexes = dict() # object list of room
-
+room_sequence = dict() # object list of room
+room_lines = dict()
 @app.route('/', methods=['GET', 'POST'])
 def main():
     return render_template("roomDoor.html")
@@ -26,14 +26,15 @@ def main():
 def roomInit():
     id_str = str(request.form['room_id'])
     session['room_id'] = id_str
-    if not(id_str in room_count.keys()):
-        room_count[id_str] = 0
-    room_count[id_str] += 1
     if not(id_str in room.keys()):
-        room[id_str] = []
-        room_indexes[id_str] = []
-    session['device_index'] = len(room[id_str])
-    room[id_str].append(DeviceArrangement(session['device_index']))
+        room[id_str] = dict()
+        room_sequence[id_str] = 0
+        room_count[id_str] = 0
+        room_lines[id_str] = []
+    room_count[id_str] += 1
+    session['device_id'] = room_sequence[id_str]
+    room_sequence[id_str] += 1
+    room[id_str][session['device_id']] = DeviceArrangement(session['device_id'])
     
     #print("Index: " + len(room[id_str]))
     return redirect(url_for('room_func',id = session['room_id']))
@@ -70,12 +71,27 @@ def disc():
 
 @socketio.on('leave')
 def quit_callback():
-    print("quit")
     id = str(session['room_id'])
-    sid = str(request.sid)
+    print("device " + str(session['device_id']) + ": QUIT from " + id)
     room_count[id] -= 1
-    del room[id][session['device_index']]
+    if room_count[id] == 0:
+        del room[id]
+        del room_lines[id]
+        del room_sequence[id]
+    else:
+        del room[id][session['device_id']]
+        try:
+            for idx, line in enumerate(room_lines[id]):
+                if (line.device_index == session['device_id']):
+                    del room_lines[id][idx]
+                    if (idx % 2) == 0:
+                        del room_lines[id][idx]
+                    else:
+                        del room_lines[id][idx - 1]
+        except IndexError as e:
+            print(e)
     si.leave_room(id)
+    
     si.emit('update', {'count':room_count[id]}, room = id)
     print("Quiting..." + id)
 
@@ -88,40 +104,36 @@ def callback():
 def dev_update(data):
     room_id = session['room_id']
     count = room_count[room_id]
-
+    dev_id = int(session['device_id'])
     s0 = Point(data["start_x"], data["start_y"])
     e0 = Point(data["end_x"], data["end_y"])
-    l0 = LineData()
-    l0.set(s0, e0, data["end_time"] - data["start_time"])
-    dev = room[room_id][int(session['device_index'])]
-    dev.line = l0
+    l0 = LineData(dev_id)
     (dt, micro) = datetime.utcnow().strftime('%Y%m%d%H%M%S.%f').split('.')
-    dev.timestamp = int("%s%03d" % (dt, int(micro) / 1000))
+    l0.timestamp = int("%s%03d" % (dt, int(micro) / 1000))
+    l0.set(s0, e0, data["end_time"] - data["start_time"])
+    dev = room[room_id][dev_id]
     dev.setDeviceSize(data['width'], data['height'])
     print(room)
-    # room_lines[room_id].append(session['device_index'])
-    # room_lines[room_id].append(l0)
-    room_indexes[room_id].append(int(session['device_index']))
+    room_lines[room_id].append(l0)
+
     ret = []
     print(count)
-    print(room_indexes)
-    if count == len(room_indexes[room_id]):
+    print(room_lines)
+    if 2 * count - 2 == len(room_lines[room_id]):
         # Init
-        for dev in room[room_id]:
+        for key, dev in room[room_id].items():
             dev.rot = Vector3()
             dev.pos.x = 0
             dev.pos.z = 0
         # Calculate
-        for idx, val in enumerate(room_indexes[room_id]):
-            if idx < count - 1:
-                DeviceArrangement.setUsingLine(room[room_id][val], room[room_id][room_indexes[room_id][idx+1]])
-        for e in room[room_id]:
-            ret.append(e.get2dPoints())
+        setUsingLines(room[room_id], room_lines[room_id])
+        for key, dev in room[room_id].items():
+            ret.append(dev.get2dPoints())
         print(ret)
         si.emit('draw', ret, room=room_id)
         # Reset
-        room_indexes[room_id] = []
-    elif count > len(room_indexes[room_id]):
+        room_lines[room_id] = []
+    elif 2 * count - 2 > len(room_lines[room_id]):
         # Listening,,,
         return
 
