@@ -20,6 +20,7 @@
       socket.on('connect', function() {
         socket.emit('join', {data: data});
       });
+      
       function leave() {
         socket.emit('leave');
         history.back();
@@ -42,27 +43,26 @@
   </head>
   <body>
     
-      <!-- <div id="textarea"
-        >
-      TEST
-    </div> -->
     <div style="position: absolute; height:100%; width:100%;">
       <div id = "canvas" style="
         left: 0;
         top: 0;
-        width: 100%; height:80%; position: relative;">
-        <canvas id="myCanvas" class = "canvas"></canvas>
+        width: 100%; height:40%; position: relative;">
+        <canvas id="canvas_view" class = "canvas"></canvas>
       </div>
-      <div id = "textarea" class="centered">
-      </div>
+      <div id = "textarea" class="centered"></div>
       <div class="centered">
           <a class="hrefText " lang="en" onClick="leave()" 
-          >DELETE BUS MODULE</a>
+          >DELETE MODULE</a>
+      </div>
+      <div id = "coord_window" style = "position: relative; width: 100%; height:50%">
+        <canvas id="coord_view" class = "canvas"></canvas>
       </div>
     </div>
     
     
     <script type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/dragnnect2d.js') }}"></script>
 
     <script type="text/javascript" charset="utf-8">
       document.getElementById("textarea").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;

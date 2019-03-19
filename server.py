@@ -16,6 +16,7 @@ socketio = si.SocketIO(app, manage_session=False)
 # GLOBAL VAR
 room_count = dict()
 room = dict() # Device object list of room
+room_indexes = dict() # object list of room
 
 @app.route('/', methods=['GET', 'POST'])
 def main():
@@ -30,6 +31,7 @@ def roomInit():
     room_count[id_str] += 1
     if not(id_str in room.keys()):
         room[id_str] = []
+        room_indexes[id_str] = []
     session['device_index'] = len(room[id_str])
     room[id_str].append(DeviceArrangement(session['device_index']))
     
@@ -72,7 +74,7 @@ def quit_callback():
     id = str(session['room_id'])
     sid = str(request.sid)
     room_count[id] -= 1
-    room[id].remove(sid)
+    del room[id][session['device_index']]
     si.leave_room(id)
     si.emit('update', {'count':room_count[id]}, room = id)
     print("Quiting..." + id)
@@ -85,18 +87,47 @@ def callback():
 @socketio.on('device_update')
 def dev_update(data):
     room_id = session['room_id']
-    dev = room[room_id][int(session['device_index'])]
+    count = room_count[room_id]
+
     s0 = Point(data["start_x"], data["start_y"])
     e0 = Point(data["end_x"], data["end_y"])
     l0 = LineData()
     l0.set(s0, e0, data["end_time"] - data["start_time"])
+    dev = room[room_id][int(session['device_index'])]
     dev.line = l0
     (dt, micro) = datetime.utcnow().strftime('%Y%m%d%H%M%S.%f').split('.')
     dev.timestamp = int("%s%03d" % (dt, int(micro) / 1000))
     dev.setDeviceSize(data['width'], data['height'])
     print(room)
-    DeviceArrangement.setUsingLine(room[room_id][0], room[room_id][1])
-    print(dev.get2dPoints())
+    # room_lines[room_id].append(session['device_index'])
+    # room_lines[room_id].append(l0)
+    room_indexes[room_id].append(int(session['device_index']))
+    ret = []
+    print(count)
+    print(room_indexes)
+    if count == len(room_indexes[room_id]):
+        # Init
+        for dev in room[room_id]:
+            dev.rot = Vector3()
+            dev.pos.x = 0
+            dev.pos.z = 0
+        # Calculate
+        for idx, val in enumerate(room_indexes[room_id]):
+            if idx < count - 1:
+                DeviceArrangement.setUsingLine(room[room_id][val], room[room_id][room_indexes[room_id][idx+1]])
+        for e in room[room_id]:
+            ret.append(e.get2dPoints())
+        print(ret)
+        si.emit('draw', ret, room=room_id)
+        # Reset
+        room_indexes[room_id] = []
+    elif count > len(room_indexes[room_id]):
+        # Listening,,,
+        return
+
+    
+    # DeviceArrangement.setUsingLine(room[room_id][0], room[room_id][1])
+
 
 if __name__ == '__main__':
     app.config['DEBUG'] = True

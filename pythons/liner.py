@@ -36,6 +36,8 @@ class Point:
             return Point(self.x/_point.x, self.y/_point.y)
         elif type(_point) == float:
             return Point(self.x/_point, self.y/_point)
+    def getFloats(self):
+        return [self.x, self.y]
     def getRotated(self, _rad):
         x2 = math.cos(_rad) * self.x - math.sin(_rad) * self.y
         y2 = math.sin(_rad) * self.x + math.cos(_rad) * self.y
@@ -111,13 +113,20 @@ class DeviceArrangement:
         p0 = Point(self.pos.x, self.pos.z)
         p1 = p0 + Point(self.width, 0).getRotated(self.rot.z)
         p2 = p0 + Point(0, self.height).getRotated(self.rot.z)
-        p3 = Point(p1.x, p2.y)
-        return [p0, p1, p2, p3]
+        p3 = p0 + Point(self.width, self.height).getRotated(self.rot.z)
+        return [p0.getFloats(), p1.getFloats(), p3.getFloats(), p2.getFloats()]
     def setUsingLine(_pre_dev, _next_dev):
         [r, p] = _pre_dev.calcUsingLine(_next_dev.line, _next_dev.timestamp - _pre_dev.timestamp)
         _next_dev.rot = r
         _next_dev.pos.x += p.x
         _next_dev.pos.z += p.y
+    # def get2dPointsUsingLine(self, _next_dev):
+    #     [r, p] = self.calcUsingLine(_next_dev.line, _next_dev.timestamp - self.timestamp)
+    #     p0 = Point(self.pos.x, self.pos.z)
+    #     p1 = p0 + Point(self.width, 0).getRotated(self.rot.z)
+    #     p2 = p0 + Point(0, self.height).getRotated(self.rot.z)
+    #     p3 = Point(p1.x, p2.y)
+    #     return [p0, p1, p2, p3]
 
         
 def sortDevicesByTime(lists):
@@ -131,29 +140,29 @@ def sortDevicesByTime(lists):
 
 
 # TEST DATA
-s1 = Point(3, 3)
-e1 = Point(3, 6) # dis = 3
-l1 = LineData()
-l1.set(s1, e1, 3) # 0.5 second
+# s1 = Point(3, 3)
+# e1 = Point(3, 6) # dis = 3
+# l1 = LineData()
+# l1.set(s1, e1, 3) # 0.5 second
 
-s2 = Point(3, 3)
-e2 = Point(6, 3) # degree with dev 1 = 90`
-l2 = LineData()
-l2.set(s2, e2, 3)
+# s2 = Point(3, 3)
+# e2 = Point(6, 3) # degree with dev 1 = 90`
+# l2 = LineData()
+# l2.set(s2, e2, 3)
 
 
-d1 = DeviceArrangement(1)
-d1.line = l1
-d1.setDeviceSize(5, 3)
-d2 = DeviceArrangement(2)
-d2.line = l2
-d2.setDeviceSize(10, 7)
+# d1 = DeviceArrangement(1)
+# d1.line = l1
+# d1.setDeviceSize(5, 3)
+# d2 = DeviceArrangement(2)
+# d2.line = l2
+# d2.setDeviceSize(10, 7)
 
-DeviceArrangement.setUsingLine(d1, d2)
+# DeviceArrangement.setUsingLine(d1, d2)
 
-print(d1)
-print(d2)
-arr1 = d1.get2dPoints()
-print(arr1)
-arr2 = d2.get2dPoints()
-print(arr2)
+# print(d1)
+# print(d2)
+# arr1 = d1.get2dPoints()
+# print(arr1)
+# arr2 = d2.get2dPoints()
+# print(arr2)

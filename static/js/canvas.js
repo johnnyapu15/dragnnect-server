@@ -1,4 +1,4 @@
-var canvas = document.getElementById('myCanvas');
+var canvas = document.getElementById('canvas_view');
 var ctx = canvas.getContext('2d');
  
 var painting = document.getElementById('canvas');
