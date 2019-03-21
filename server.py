@@ -102,18 +102,23 @@ def callback():
 
 @socketio.on('device_update')
 def dev_update(data):
+    print(data)
+    dpmm = data['dpi_x'] / 25.4
+    print("DPI: " + str(data['dpi_x']) + " ... dpmm: " + str(dpmm))
     room_id = session['room_id']
     count = room_count[room_id]
     dev_id = int(session['device_id'])
     s0 = Point(data["start_x"], data["start_y"])
+    s0 /= dpmm
     e0 = Point(data["end_x"], data["end_y"])
+    e0 /= dpmm
     l0 = LineData(dev_id)
     (dt, micro) = datetime.utcnow().strftime('%Y%m%d%H%M%S.%f').split('.')
     l0.timestamp = int("%s%03d" % (dt, int(micro) / 1000))
     l0.set(s0, e0, data["end_time"] - data["start_time"])
-    dev = room[room_id][dev_id]
-    dev.setDeviceSize(data['width'], data['height'])
-    print(room)
+    room[room_id][dev_id].setDeviceSize(data['width'] / dpmm, data['height'] / dpmm)
+
+    print(room[room_id])
     room_lines[room_id].append(l0)
 
     ret = []

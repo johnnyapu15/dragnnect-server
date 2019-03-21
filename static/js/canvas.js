@@ -1,10 +1,18 @@
 var canvas = document.getElementById('canvas_view');
 var ctx = canvas.getContext('2d');
- 
+var data = {};
 var painting = document.getElementById('canvas');
 var paint_style = getComputedStyle(painting);
 canvas.width = parseInt(paint_style.getPropertyValue('width'));
 canvas.height = parseInt(paint_style.getPropertyValue('height'));
+
+
+var devicePixelRatio = window.devicePixelRatio || 1;
+dpi_x = document.getElementById('testdiv').offsetWidth * devicePixelRatio;
+dpi_y = document.getElementById('testdiv').offsetHeight * devicePixelRatio;
+
+
+
 
 var mouse = {x: 0, y: 0};
  
@@ -17,13 +25,16 @@ ctx.lineWidth = 3;
 ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
 ctx.strokeStyle = '#5A6068';
-var data = {};
+
 canvas.addEventListener('mousedown', function(e) {
     ctx.beginPath();
     ctx.moveTo(mouse.x, mouse.y);
     data = {};
-    data['width'] = window.outerWidth;
-    data['height'] = window.outerHeight;
+    data['dpi_x'] = dpi_x;
+    data['dpi_y'] = dpi_x;
+    data['w'] = window.outerWidth;
+    data['width'] = canvas.clientWidth;
+    data['height'] = canvas.clientWidth * window.outerHeight / window.outerWidth;
     data['start_x'] = mouse.x;
     data['start_y'] = mouse.y;
     data['start_time'] = Date.now();
@@ -49,8 +60,11 @@ canvas.addEventListener('touchstart', function(evt) {
 
   ctx.moveTo(touches[0].pageX, touches[0].pageY);
   data = {};
-  data['width'] = window.outerWidth;
-  data['height'] = window.outerHeight;
+  data['dpi_x'] = dpi_x;
+  data['dpi_y'] = dpi_x;
+  data['w'] = window.outerWidth;
+  data['width'] = canvas.clientWidth;
+  data['height'] = canvas.clientHeight;
   data['start_x'] = touches[0].pageX;
   data['start_y'] = touches[0].pageY;
   data['start_time'] = Date.now();
