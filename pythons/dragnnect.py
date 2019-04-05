@@ -91,6 +91,8 @@ class DeviceArrangement:
         self.width = 0
         self.height = 0
         self.timestamp = 0
+        self.ntpDelay = 0
+        self.ntpTimes = []
     def __str__(self):
         ret = ""
         ret += "Device_id: " + str(self.device_id)

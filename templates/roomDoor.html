@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html>
-<title>W3.CSS</title>
+<title>Dragnnect-client</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
+
 <body>
 
+<div class="topnav">
+    <a class="active">Home</a>
+    <a href="#canvas">Canvas</a>
+    <a href="#demo">DEMO</a>
+    <a href="#reset">Reset</a>
+</div>
 
 <form method="post" action="{{ url_for('roomInit') }}" class="w3-container w3-card-4 w3-light-grey w3-text-blue w3-margin">
 <h2 class="w3-center">DRAGNNECT</h2>
@@ -13,7 +21,11 @@
 <div class="w3-row w3-section">
   <div class="w3-col" style="width:50px"><i class="w3-xxlarge fa fa-user"></i></div>
     <div class="w3-rest">
-      <input class="w3-input w3-border" name="email" type="text" placeholder="E-mail">
+      <input class="w3-input w3-border" name="id" type="text" placeholder="ID">
+      <input type="checkbox" name="dev_info" value="g7">G7
+      <input type="checkbox" name="dev_info" value="nexus">Nexus
+      <input type="checkbox" name="dev_info" value="s6">S6
+      <input type="checkbox" name="dev_info" value="etc">etc
     </div>
 </div>
 

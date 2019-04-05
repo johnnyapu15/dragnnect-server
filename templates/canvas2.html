@@ -51,9 +51,6 @@
         socket.emit('ntp_1', t1);
       });
       
-      function resetLines() {
-        socket.emit('reset_lines');
-      }
 
       //socket.on('connect', function() {
       
@@ -69,17 +66,18 @@
     </style>
   </head>
   <body>
-    <div class="topnav" style="">
+    <div class="topnav">
       <a onClick="leave()">Home</a>
       <a class="active" href="#canvas">Canvas</a>
-      <a href="#demo">DEMO</a>
-      <a onClick="resetLines()">Reset</a>
+      <a href="#2d-demo">2D DEMO</a>
+      <a href="#3d-demo">3D DEMO</a>
     </div>
-    <!-- <div id='testdiv' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div> -->
+    <div id='testdiv' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
 
-    <div style="position: absolute; width:100%; height:100%">
+    <div style="position:absolute; width:100%; height:100%;">
       <div id = "canvas" style="
         left: 0;
+        top: 0;
         width: 100%; height:45%; position: relative;">
         <canvas id="canvas_view" class = "canvas"></canvas>
       </div>
