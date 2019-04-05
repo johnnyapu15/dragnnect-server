@@ -37,13 +37,21 @@ def roomInit():
     room[id_str][session['device_id']] = DeviceArrangement(session['device_id'])
     
     #print("Index: " + len(room[id_str]))
-    return redirect(url_for('room_func',id = session['room_id']))
+    return redirect(url_for('room_func', id = session['room_id']))
     #return render_template("canvas.html", count = room_count[id_str], room_id = id_str)
 
 @app.route('/room/<int:id>', methods=['POST', 'GET'])
 def room_func(id):
     id_str = str(id)
-    return render_template("canvas.html", count = str(room_count[id_str]), room_id = id_str)
+    if 'device_id' in session.keys():
+        print(room)
+        idx = list(room[id_str].keys()).index(session['device_id'])
+        print(session['device_id'])
+        print("Insert..." + str(idx))
+        session['device_id'] = idx
+        return render_template("canvas.html", count = str(room_count[id_str]), room_id = id_str, idx = session['device_id'])
+    else:
+        return render_template("roomDoor.html")
 
 @socketio.on('join')
 def join_room(data):
@@ -60,10 +68,6 @@ def join_room(data):
     print("Index: " + str(room_count[id_str]))
     si.emit('update', {'count':room_count[id_str]}, room = id_str)
     #si.emit('redirect', {'url':url_for('room_func', id = id_str)})
-
-@socketio.on('my event')
-def handle_my_custom_event(json):
-    print('received json: ' + str(json))
 
 @socketio.on('disconnect')
 def disc():
@@ -100,23 +104,29 @@ def callback():
     print(request.json)
     return str(request.json)
 
+@app.route('/test')
+def testsite():
+    return render_template("test.html")
+
+
 @socketio.on('device_update')
 def dev_update(data):
     print(data)
     dpmm = data['dpi_x'] / 25.4
+    dpv = dpmm / 5
     print("DPI: " + str(data['dpi_x']) + " ... dpmm: " + str(dpmm))
     room_id = session['room_id']
     count = room_count[room_id]
     dev_id = int(session['device_id'])
     s0 = Point(data["start_x"], data["start_y"])
-    s0 /= dpmm
     e0 = Point(data["end_x"], data["end_y"])
-    e0 /= dpmm
+    #s0 /= dpv
+    #e0 /= dpv
     l0 = LineData(dev_id)
     (dt, micro) = datetime.utcnow().strftime('%Y%m%d%H%M%S.%f').split('.')
-    l0.timestamp = int("%s%03d" % (dt, int(micro) / 1000))
-    l0.set(s0, e0, data["end_time"] - data["start_time"])
-    room[room_id][dev_id].setDeviceSize(data['width'] / dpmm, data['height'] / dpmm)
+    l0.set(s0, e0, data["end_time"] - data["start_time"], int("%s%03d" % (dt, int(micro) / 1000)))
+    room[room_id][dev_id].setDeviceSize(data['width'], data['height'])
+    #room[room_id][dev_id].setDeviceSize(data['width'] / dpv, data['height'] / dpv)
 
     print(room[room_id])
     room_lines[room_id].append(l0)
@@ -131,15 +141,24 @@ def dev_update(data):
             dev.pos.x = 0
             dev.pos.z = 0
         # Calculate
-        setUsingLines(room[room_id], room_lines[room_id])
+        #setUsingLines(room[room_id], room_lines[room_id])
+        setUsingLines2(room[room_id], room_lines[room_id])
         for key, dev in room[room_id].items():
             ret.append(dev.get2dPoints())
         print(ret)
         si.emit('draw', ret, room=room_id)
         # Reset
+        for key, dev in room[room_id].items():
+            dev.setDeviceSize(0, 0)
         room_lines[room_id] = []
     elif 2 * count - 2 > len(room_lines[room_id]):
         # Listening,,,
+        return
+    else:
+        # TODO: draw
+        for key, dev in room[room_id].items():
+            dev.setDeviceSize(0, 0)
+        room_lines[room_id] = []
         return
 
     

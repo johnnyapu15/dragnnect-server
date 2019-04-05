@@ -29,15 +29,9 @@ ctx.strokeStyle = '#5A6068';
 canvas.addEventListener('mousedown', function(e) {
     ctx.beginPath();
     ctx.moveTo(mouse.x, mouse.y);
-    data = {};
-    data['dpi_x'] = dpi_x;
-    data['dpi_y'] = dpi_x;
-    data['w'] = window.outerWidth;
-    data['width'] = canvas.clientWidth;
-    data['height'] = canvas.clientWidth * window.outerHeight / window.outerWidth;
+    getData();
     data['start_x'] = mouse.x;
     data['start_y'] = mouse.y;
-    data['start_time'] = Date.now();
     canvas.addEventListener('mousemove', onPaint, false);
 }, false);
  
@@ -46,47 +40,52 @@ canvas.addEventListener('mouseup', function() {
     data['end_x'] = mouse.x;
     data['end_y'] = mouse.y;
     data['end_time'] = Date.now();
-    // var http = new XMLHttpRequest();
-    // http.open('POST', "callback", true);
-    // http.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-    // http.send(JSON.stringify(data));
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     socket.emit('device_update', data)
 }, false);
 
-
 canvas.addEventListener('touchstart', function(evt) {
+  evt.preventDefault();
   ctx.beginPath();
   var touches = evt.changedTouches;
 
   ctx.moveTo(touches[0].pageX, touches[0].pageY);
-  data = {};
-  data['dpi_x'] = dpi_x;
-  data['dpi_y'] = dpi_x;
-  data['w'] = window.outerWidth;
-  data['width'] = canvas.clientWidth;
-  data['height'] = canvas.clientHeight;
+  getData();
   data['start_x'] = touches[0].pageX;
   data['start_y'] = touches[0].pageY;
-  data['start_time'] = Date.now();
   canvas.addEventListener('touchmove', onTouchPaint, false);
 }, false);
 
 canvas.addEventListener('touchend', function(evt) {
+  evt.preventDefault();
   var touches = evt.changedTouches;
 
   canvas.removeEventListener('touchmove', onTouchPaint, false);
   data['end_x'] = touches[0].pageX;
   data['end_y'] = touches[0].pageY;
   data['end_time'] = Date.now();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   socket.emit('device_update', data)
 }, false);
 
 var onTouchPaint = function(evt) {
+  evt.preventDefault();
   var touches = evt.changedTouches;
   ctx.lineTo(touches[0].pageX, touches[0].pageY);
   ctx.stroke();
 };
 
+function getData() {
+  data = {};
+  data['dpi_x'] = dpi_x;
+  data['dpi_y'] = dpi_x;
+  data['w'] = window.outerWidth;
+  data['width'] = canvas.clientWidth;
+  //data['height'] = canvas.clientHeight;
+  data['height'] = canvas.clientWidth * window.outerHeight / window.outerWidth;
+
+  data['start_time'] = Date.now();
+}
  
 var onPaint = function() {
     ctx.lineTo(mouse.x, mouse.y);
