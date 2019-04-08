@@ -126,6 +126,7 @@ def ntp_1(t1):
     delay = ((t1 - t0) + (t2 - t1)) / 2
     room[session['room_id']][session['device_id']].ntpDelay = delay
     print("Delay: " + str(delay))
+
 @socketio.on('reset_lines')
 def reset_lines():
     room_id = session['room_id']
