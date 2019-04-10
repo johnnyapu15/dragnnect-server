@@ -40,17 +40,16 @@
   <body>
     
     <div class="topnav" id="menu">
-      <a id="tab-1" onClick="leave()">Home</a>
-      <a id="tab-2" class="active" href="#canvas">Canvas</a>
-      <a id="tab-3" href="#demo">DEMO</a>
-      <a id="tab-4" onClick="resetLines()">Reset</a>
+      <a class="tablinks" id="tab-1" onClick="leave()">Home</a>
+      <a class="tablinks show" id="tab-2" onClick="openTab(event, 'content-2')">Canvas</a>
+      <a class="tablinks" id="tab-3" onClick="openTab(event, 'content-3')">DEMO</a>
+      <a class="tablinks" id="tab-4" onClick="openTab(event, 'content-4')">Reset</a>
     </div>
-    <div class="panel">
-      <li id="content-1">
+      <div id="content-1" class="tabcontent">
         
-      </li>
+      </div>
 
-      <li id="content-2">
+      <div id="content-2" class="tabcontent">
         <div style="position: absolute; width:100%; height:100%">
           <div id = "canvas" style="
             left: 0;
@@ -63,16 +62,15 @@
             <canvas id="coord_view" class = "canvas"></canvas>
           </div>
         </div>
-      </li>
+      </div>
 
-      <li id="content-3">
+      <div id="content-3" class="tabcontent">
         2d
-      </li>
+      </div>
 
-      <li id="content-4">
+      <div id="content-4" class="tabcontent">
         
-      </li>
-    </div>
+      </div>
     
     
     <script type="text/javascript" src="{{ url_for('static', filename='js/socketio_d.js') }}"></script>
@@ -82,27 +80,28 @@
     <script type="text/javascript" charset="utf-8">
       document.getElementById("textarea").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;
       data['id'] = room_id;
-        /*탭메뉴*/
-    var oTab = document.getElementById("menu");
-    var tabIndex = $(this).find('.active').attr('id').match(/\d+$/);
-    
-    $(this).find('.panel').find('#content-' + tabIndex[0]).show();
 
-    $(this).find('.title a').click(function() {
-      /*선택색인*/
 
-      var tabIndex = $(this).attr('id').match(/\d+$/);
-      /*타이틀*/
-      oTab.find('.title a').removeClass('active');
-      $(this).addClass('active');
+      function openTab(evt, _id){
+        var i, tabcontent, tablinks;
 
-      /*패널*/
-      oTab.find('.panel li').hide();
-      oTab.find('.panel').find('#content-' + tabIndex[0]).show();
+        tabcontent = document.getElementsByClassName("tabcontent");
+        
+        for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
 
-      return false;
-    });
-
+        tablinks = document.getElementsByClassName("tablinks")
+        for (i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" show", "");
+        }
+        document.getElementById(_id).style.display = "block";
+        evt.currentTarget.className += " show";
+      
+        if (_id == "content-4") {
+          resetLines();
+        }
+      }
 
     </script>
   

@@ -136,7 +136,12 @@ table{
   }
   
   /* Add a color to the active/current link */
-  .topnav a.active {
+  .topnav a.show {
     background-color: #4CAF50;
     color: white;
+  }
+
+  .tabcontent {
+    display: none;
+    
   }
