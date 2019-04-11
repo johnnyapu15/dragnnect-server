@@ -1,59 +1,68 @@
 
-    var canvas = document.getElementsByTagName('canvas')[0];
-    var canvas = document.getElementById('name');
-	// canvas.width = 800;
-    // canvas.height = 600;
+    // 캔버스 전체 초기화: init(size)
+    // 각 디바이스 위치 조정: arrange(position, angle)
+    // 드래그로 이미지 이동: moveImg()
+    
+    // 월드 좌표계와 로컬 좌표계 개념을 나눠서, 서버에서 전송한 월드 좌표계를
+    // 디바이스에 최적화된 로컬 좌표계로 변형하여 표현한다.
+    // 이 과정에서 필요한 것은 디바이스의 위치와 각도.
+    // 이미지의 좌표가 50, 50이고 디바이스의 위치가 20, 40이라면 로컬 좌표는 30, 10이 될 것이다.
+    // 배율(scaling)에 대한 것은 고려하지 않아도 되는가?
+    
+    //var canvas = document.getElementsByTagName('canvas')[0];
+    var canvas_2d_demo = document.getElementById('canvas-for-2d-demo');
+	canvas_2d_demo.width = 800;
+    canvas_2d_demo.height = 600;
 
 	var gkhead = new Image;
     gkhead.src = 'http://phrogz.net/tmp/gkhead.jpg';
     // Adds ctx.getTransform() - returns an SVGMatrix
-	// Adds ctx.transformedPoint(x,y) - returns an SVGPoint
-	window.onload = function(){		
+	// Adds ctx.transformedPoint(x,y) - returns an SVGPoint	
     
-		    var ctx = canvas.getContext('2d');
-		    trackTransforms(ctx);
+    var ctx_2d_demo = canvas_2d_demo.getContext('2d');
+    trackTransforms(ctx_2d_demo);
 		  
     function redraw(){
 
-          // Clear the entire canvas
-          var p1 = ctx.transformedPoint(0,0);
-          var p2 = ctx.transformedPoint(canvas.width,canvas.height);
-          ctx.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
+        // Clear the entire canvas
+        var p1 = ctx_2d_demo.transformedPoint(0,0);
+        var p2 = ctx_2d_demo.transformedPoint(canvas_2d_demo.width,canvas_2d_demo.height);
+        ctx_2d_demo.clearRect(p1.x,p1.y,p2.x-p1.x,p2.y-p1.y);
 
-          ctx.save();
-          ctx.setTransform(1,0,0,1,0,0);
-          ctx.clearRect(0,0,canvas.width,canvas.height);
-          ctx.restore();
+        ctx_2d_demo.save();
+        ctx_2d_demo.setTransform(1,0,0,1,0,0);
+        ctx_2d_demo.clearRect(0,0,canvas_2d_demo.width,canvas_2d_demo.height);
+        ctx_2d_demo.restore();
 
-          ctx.drawImage(gkhead,0,0);
+        ctx_2d_demo.drawImage(gkhead,0,0);
 
-        }
+    }
         redraw();
 
-      var lastX=canvas.width/2, lastY=canvas.height/2;
+      var lastX=canvas_2d_demo.width/2, lastY=canvas_2d_demo.height/2;
 
       var dragStart,dragged;
 
-      canvas.addEventListener('mousedown',function(evt){
+      canvas_2d_demo.addEventListener('mousedown',function(evt){
           document.body.style.mozUserSelect = document.body.style.webkitUserSelect = document.body.style.userSelect = 'none';
-          lastX = evt.offsetX || (evt.pageX - canvas.offsetLeft);
-          lastY = evt.offsetY || (evt.pageY - canvas.offsetTop);
-          dragStart = ctx.transformedPoint(lastX,lastY);
+          lastX = evt.offsetX || (evt.pageX - canvas_2d_demo.offsetLeft);
+          lastY = evt.offsetY || (evt.pageY - canvas_2d_demo.offsetTop);
+          dragStart = ctx_2d_demo.transformedPoint(lastX,lastY);
           dragged = false;
       },false);
 
-      canvas.addEventListener('mousemove',function(evt){
-          lastX = evt.offsetX || (evt.pageX - canvas.offsetLeft);
-          lastY = evt.offsetY || (evt.pageY - canvas.offsetTop);
+      canvas_2d_demo.addEventListener('mousemove',function(evt){
+          lastX = evt.offsetX || (evt.pageX - canvas_2d_demo.offsetLeft);
+          lastY = evt.offsetY || (evt.pageY - canvas_2d_demo.offsetTop);
           dragged = true;
           if (dragStart){
-            var pt = ctx.transformedPoint(lastX,lastY);
-            ctx.translate(pt.x-dragStart.x,pt.y-dragStart.y);
+            var pt = ctx_2d_demo.transformedPoint(lastX,lastY);
+            ctx_2d_demo.translate(pt.x-dragStart.x,pt.y-dragStart.y);
             redraw();
                 }
       },false);
 
-      canvas.addEventListener('mouseup',function(evt){
+      canvas_2d_demo.addEventListener('mouseup',function(evt){
           dragStart = null;
           if (!dragged) zoom(evt.shiftKey ? -1 : 1 );
       },false);
@@ -61,11 +70,11 @@
       var scaleFactor = 1.1;
 
       var zoom = function(clicks){
-          var pt = ctx.transformedPoint(lastX,lastY);
-          ctx.translate(pt.x,pt.y);
+          var pt = ctx_2d_demo.transformedPoint(lastX,lastY);
+          ctx_2d_demo.translate(pt.x,pt.y);
           var factor = Math.pow(scaleFactor,clicks);
-          ctx.scale(factor,factor);
-          ctx.translate(-pt.x,-pt.y);
+          ctx_2d_demo.scale(factor,factor);
+          ctx_2d_demo.translate(-pt.x,-pt.y);
           redraw();
       }
 
@@ -75,9 +84,8 @@
           return evt.preventDefault() && false;
       };
     
-      canvas.addEventListener('DOMMouseScroll',handleScroll,false);
-      canvas.addEventListener('mousewheel',handleScroll,false);
-	};
+      canvas_2d_demo.addEventListener('DOMMouseScroll',handleScroll,false);
+      canvas_2d_demo.addEventListener('mousewheel',handleScroll,false);
 
 
 	

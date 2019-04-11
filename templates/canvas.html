@@ -29,7 +29,8 @@
     var count = {{ count }};
     var room_id = {{ room_id }};
     var dev_id = {{ idx }};
-      
+    
+
 
       
     </script>
@@ -49,7 +50,7 @@
         
       </div>
 
-      <div id="content-2" class="tabcontent">
+      <div id="content-2" class="tabcontent" style="display:block">
         <div style="position: absolute; width:100%; height:100%">
           <div id = "canvas" style="
             left: 0;
@@ -65,7 +66,7 @@
       </div>
 
       <div id="content-3" class="tabcontent">
-        2d
+        <canvas id="canvas-for-2d-demo" class="canvas"></canvas>
       </div>
 
       <div id="content-4" class="tabcontent">
@@ -74,13 +75,14 @@
     
     
     <script type="text/javascript" src="{{ url_for('static', filename='js/socketio_d.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/dragnnect2d.js') }}"></script>
-
+    <script type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/2d-demo.js') }}"></script>
     <script type="text/javascript" charset="utf-8">
       document.getElementById("textarea").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;
       data['id'] = room_id;
 
+      var head = document.getElementsByTagName('body')[0];
 
       function openTab(evt, _id){
         var i, tabcontent, tablinks;
@@ -97,10 +99,28 @@
         }
         document.getElementById(_id).style.display = "block";
         evt.currentTarget.className += " show";
-      
-        if (_id == "content-4") {
-          resetLines();
-        }
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        // switch (_id) {
+        //   case "content-1":
+
+        //     break;
+        //   case "content-2": 
+        //     script.src = "{{ url_for('static', filename='js/dragnnect2d.js') }}";
+        //     head.appendChild(script);
+            
+        //     script.src = "{{ url_for('static', filename='js/canvas.js') }}";
+        //     head.appendChild(script);
+        //     break;
+        //   case "content-3": 
+        //     script.src = "{{ url_for('static', filename='js/2d-demo.js') }}";
+        //     head.appendChild(script);
+        //     break;
+        //   case "content-4": 
+        //     resetLines();
+        //     break;
+        // }
+
       }
 
     </script>
