@@ -101,25 +101,25 @@
         evt.currentTarget.className += " show";
         var script = document.createElement('script');
         script.type = 'text/javascript';
-        // switch (_id) {
-        //   case "content-1":
+        switch (_id) {
+          case "content-1":
 
-        //     break;
-        //   case "content-2": 
-        //     script.src = "{{ url_for('static', filename='js/dragnnect2d.js') }}";
-        //     head.appendChild(script);
+            break;
+          case "content-2": 
+            // script.src = "{{ url_for('static', filename='js/dragnnect2d.js') }}";
+            // head.appendChild(script);
             
-        //     script.src = "{{ url_for('static', filename='js/canvas.js') }}";
-        //     head.appendChild(script);
-        //     break;
-        //   case "content-3": 
-        //     script.src = "{{ url_for('static', filename='js/2d-demo.js') }}";
-        //     head.appendChild(script);
-        //     break;
-        //   case "content-4": 
-        //     resetLines();
-        //     break;
-        // }
+            // script.src = "{{ url_for('static', filename='js/canvas.js') }}";
+            // head.appendChild(script);
+            break;
+          case "content-3": 
+            // script.src = "{{ url_for('static', filename='js/2d-demo.js') }}";
+            // head.appendChild(script);
+            break;
+          case "content-4": 
+            resetLines();
+            break;
+        }
 
       }
 
