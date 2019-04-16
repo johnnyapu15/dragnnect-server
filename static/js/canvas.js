@@ -19,14 +19,17 @@ canvas_dragnnect.addEventListener('mousemove', function(e) {
   mouse.x = e.pageX - rect.left;
   mouse.y = e.pageY - rect.top;
 }, false);
+function drawing_param_set() {
+  ctx_dragnnect.lineWidth = 3;
+  ctx_dragnnect.lineJoin = 'round';
+  ctx_dragnnect.lineCap = 'round';
+  ctx_dragnnect.strokeStyle = '#5A6068';
+}
 
-ctx_dragnnect.lineWidth = 3;
-ctx_dragnnect.lineJoin = 'round';
-ctx_dragnnect.lineCap = 'round';
-ctx_dragnnect.strokeStyle = '#5A6068';
 
 canvas_dragnnect.addEventListener('mousedown', function(e) {
     ctx_dragnnect.beginPath();
+    drawing_param_set();
     ctx_dragnnect.moveTo(mouse.x, mouse.y);
     getData();
     data['start_x'] = mouse.x;
@@ -42,11 +45,12 @@ canvas_dragnnect.addEventListener('mouseup', function() {
     data['delta'] = Date.now() - start_time;
     //data['pnts'] = pnts;
     data['11pnts'] = get11Pnts(pnts);
-    ctx_dragnnect.clearRect(0, 0, canvas_dragnnect.width, canvas_dragnnect.height);
+    //ctx_dragnnect.clearRect(0, 0, canvas_dragnnect.width, canvas_dragnnect.height);
     socket.emit('device_update', data)
 }, false);
 
 canvas_dragnnect.addEventListener('touchstart', function(evt) {
+  drawing_param_set();
   evt.preventDefault();
   ctx_dragnnect.beginPath();
   touches.x = evt.changedTouches[0].pageX;
@@ -74,7 +78,7 @@ canvas_dragnnect.addEventListener('touchend', function(evt) {
     data['delta'] = Date.now() - start_time;
     socket.emit('device_update', data);
   }
-  ctx_dragnnect.clearRect(0, 0, canvas_dragnnect.width, canvas_dragnnect.height);
+  //ctx_dragnnect.clearRect(0, 0, canvas_dragnnect.width, canvas_dragnnect.height);
 }, false);
 
 var onTouchPaint = function(evt) {
@@ -119,6 +123,70 @@ function get11Pnts(arr) {
   }
   return ret;
 }
+
+
+// var canvas_coord = document.getElementById('coord_view');
+// var ctx_coord = canvas_coord.getContext('2d');
+// // canvas_dragnnect, ctx_dragnnect.
+// // painting, paint_style
+// var dragnnect2d_painting = document.getElementById('coord_window');
+// var dragnnect2d_paint_style = getComputedStyle(dragnnect2d_painting);
+// canvas_coord.width = parseInt(dragnnect2d_paint_style.getPropertyValue('width'));
+// canvas_coord.height = parseInt(dragnnect2d_paint_style.getPropertyValue('height'));
+var w = canvas_dragnnect.width / 2;
+var h = canvas_dragnnect.height / 2;
+var data_devs;
+var colors = [
+  '#0000FF',
+  '#00FF00',
+  '#FF0000',
+  '#FFFF00',
+  '#00FFFF',
+  '#FF00FF'
+]
+function coord_param_set() {
+  ctx_dragnnect.lineWidth = 3;
+  ctx_dragnnect.lineJoin = 'round';
+  ctx_dragnnect.lineCap = 'round';
+  ctx_dragnnect.strokeStyle = '#9BA1A8';
+  ctx_dragnnect.fillStyle = '#9BA1A8';
+  ctx_dragnnect.font = "50px Arial";
+  ctx_dragnnect.fillStyle = colors[dev_id];
+  ctx_dragnnect.fillText(dev_id, 20, 50);
+}
+
+socket.on('draw', function(data) {
+  ctx_dragnnect.clearRect(0, 0, w*2, h*2);
+  data_devs = data;
+  coord_param_set();
+  dragnnect2d_draw(data_devs);
+})
+
+function dragnnect2d_draw(devs) {
+    if (canvas_dragnnect.getContext) {
+      var i = 0;
+      devs.forEach(dev => {
+        ctx_dragnnect.moveTo(dev[0][0]/10 + w, dev[0][1]/10 + h);
+        ctx_dragnnect.beginPath();
+        dev.forEach(pnt => {
+          ctx_dragnnect.lineTo(pnt[0]/10 + w, pnt[1]/10 + h);
+        });
+        ctx_dragnnect.strokeStyle = colors[i];
+        ctx_dragnnect.fillStyle = colors[i];
+        ctx_dragnnect.fill();
+        ctx_dragnnect.font = "30px Arial";
+        ctx_dragnnect.fillStyle = '#212121';
+        ctx_dragnnect.fillText(i, dev[0][0]/10 + w + 10, dev[0][1]/10 + h + 30);
+        
+        i++;
+      });
+      
+      
+      // dragnnect2d_ctx.lineTo(100, 75);
+      // dragnnect2d_ctx.lineTo(100, 25);
+      
+    }
+  }
 
 // window.addEventListener("beforeunload", function (evt) {
 //   // var http = new XMLHttpRequest();
