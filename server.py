@@ -130,6 +130,7 @@ def ntp_1(t1):
 @socketio.on('reset_lines')
 def reset_lines():
     room_id = session['room_id']
+    print(str(room_id) + ": reset lines...")
     for key, dev in room[room_id].items():
         dev.setDeviceSize(0, 0)
     room_lines[room_id] = []
