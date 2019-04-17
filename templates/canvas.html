@@ -45,11 +45,11 @@
       <a class="tablinks show" id="tab-2" onClick="openTab(event, 'content-2')">Canvas</a>
       <a class="tablinks" id="tab-3" onClick="openTab(event, 'content-3')">DEMO</a>
       <div class="dropdown">
-        <a class="dropbtn" id="tab-menu">Menu</a>
-        <div class="dropdown-content">
-          <a class="tablinks" id="tab-4" onClick="openTab(event, 'content-4')">Menu</a>
-          <a class="tablinks" id="tab-5" onClick="openTab(event, 'content-5')">Menu</a>
-
+        <a class="dropbtn" onClick="openMenu()">Menu</a>
+        <div class="dropdown-content" id="drop-menu">
+          <a id="tab-4" onClick="openTab(event, 'content-4')">Reset</a>
+          <a id="tab-5" onClick="openTab(event, 'content-5')">exp</a>
+        
         </div>
       </div>
     </div>
@@ -76,6 +76,9 @@
       <div id="content-4" class="tabcontent">
         
       </div>
+      <div id="content-5" class="tabcontent">
+        
+      </div>
     
     
     <script type="text/javascript" src="{{ url_for('static', filename='js/socketio_d.js') }}"></script>
@@ -88,28 +91,23 @@
 
       var head = document.getElementsByTagName('body')[0];
       function openMenu() {
-        document.getElementById("tab-menu").classList.toggle("show");
+        document.getElementById("drop-menu").classList.toggle("show");
       }
       window.onclick = function(e) {
-        if (!e.target.matches('.drop'))
+        if (!e.target.matches('.dropbtn')) {
+          var dropdowns = document.getElementsByClassName("dropdown-content");
+          var i;
+          for (i = 0; i < dropdowns.length; i++) {
+            var op = dropdowns[i];
+            if (op.classList.contains('show')) {
+              op.classList.remove('show');
+            }
+          }
+        }
       }
       function openTab(evt, _id){
         var i, tabcontent, tablinks;
-
-        tabcontent = document.getElementsByClassName("tabcontent");
-        
-        for (i = 0; i < tabcontent.length; i++) {
-          tabcontent[i].style.display = "none";
-        }
-
-        tablinks = document.getElementsByClassName("tablinks")
-        for (i = 0; i < tablinks.length; i++) {
-          tablinks[i].className = tablinks[i].className.replace(" show", "");
-        }
-        document.getElementById(_id).style.display = "block";
-        evt.currentTarget.className += " show";
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
+        i = 0;
         switch (_id) {
           case "content-1":
 
@@ -127,8 +125,27 @@
             break;
           case "content-4": 
             resetLines();
+            i = 1;
+            break;
+          case "content-5": 
             break;
         }
+        if (i == 1) return;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        
+        for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+
+        tablinks = document.getElementsByClassName("tablinks")
+        for (i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" show", "");
+        }
+        document.getElementById(_id).style.display = "block";
+        evt.currentTarget.className += " show";
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+
 
       }
 

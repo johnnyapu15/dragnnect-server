@@ -1,7 +1,7 @@
 from flask import Flask, request, \
 render_template, jsonify, session, \
 json, redirect, url_for
-
+import logging
 import flask_socketio as si
 from datetime import datetime
 
@@ -11,6 +11,7 @@ from pythons.dragnnect import *
 app = Flask(__name__)
 app.secret_key = 'the random string'
 socketio = si.SocketIO(app, manage_session=False)
+
 
 
 # GLOBAL VAR
@@ -189,6 +190,8 @@ def dev_update(data):
     
     # DeviceArrangement.setUsingLine(room[room_id][0], room[room_id][1])
 
+logging.getLogger('socketio').setLevel(logging.ERROR)
+logging.getLogger('engineio').setLevel(logging.ERROR)
 
 if __name__ == '__main__':
     app.config['DEBUG'] = True
