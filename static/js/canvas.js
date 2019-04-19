@@ -19,6 +19,7 @@ canvas_dragnnect.addEventListener('mousemove', function(e) {
   mouse.x = e.pageX - rect.left;
   mouse.y = e.pageY - rect.top;
 }, false);
+
 function drawing_param_set() {
   ctx_dragnnect.lineWidth = 3;
   ctx_dragnnect.lineJoin = 'round';
@@ -164,8 +165,10 @@ socket.on('draw', function(data) {
 
 function dragnnect2d_draw(devs) {
     if (canvas_dragnnect.getContext) {
-      var i = 0;
-      devs.forEach(dev => {
+      var i;
+      for (var key in devs) {
+        var dev = devs[key];
+        i = parseInt(key);
         ctx_dragnnect.moveTo(dev[0][0]/10 + w, dev[0][1]/10 + h);
         ctx_dragnnect.beginPath();
         dev.forEach(pnt => {
@@ -177,10 +180,8 @@ function dragnnect2d_draw(devs) {
         ctx_dragnnect.font = "30px Arial";
         ctx_dragnnect.fillStyle = '#212121';
         ctx_dragnnect.fillText(i, dev[0][0]/10 + w + 10, dev[0][1]/10 + h + 30);
-        
-        i++;
-      });
-      
+      }
+      //ctx_2d_demo.theta =       
       
       // dragnnect2d_ctx.lineTo(100, 75);
       // dragnnect2d_ctx.lineTo(100, 25);

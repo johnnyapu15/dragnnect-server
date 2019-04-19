@@ -10,9 +10,7 @@
     // 배율(scaling)에 대한 것은 고려하지 않아도 되는가?
     
     //var canvas = document.getElementsByTagName('canvas')[0];
-    var canvas_2d_demo = document.getElementById('canvas-for-2d-demo');
-	canvas_2d_demo.width = 800;
-    canvas_2d_demo.height = 600;
+    var canvas_2d_demo = document.getElementById('canvas-2d-demo');
 
 	var gkhead = new Image;
     gkhead.src = 'http://phrogz.net/tmp/gkhead.jpg';

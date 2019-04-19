@@ -157,7 +157,7 @@ def dev_update(data):
 
     room_lines[room_id].append(l0)
 
-    ret = []
+    ret = dict()
     if 2 * count - 2 == len(room_lines[room_id]):
         # TODO: Save lines!
         # Env#_User#_Timestamp_dev1_dev2.txt
@@ -170,7 +170,7 @@ def dev_update(data):
         #setUsingLines(room[room_id], room_lines[room_id])
         setUsingLines2(room[room_id], room_lines[room_id])
         for key, dev in room[room_id].items():
-            ret.append(dev.get2dPoints())
+            ret[str(dev.device_id)] = dev.get2dPoints()
         print(ret)
         si.emit('draw', ret, room=room_id)
         # Reset
