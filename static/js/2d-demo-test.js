@@ -58,7 +58,7 @@ function drawDemo(pnt) {
     console.log(tr);
     //log point text
     document.getElementById('a-2d-demo').innerText = "pnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
-
+    document.getElementById('a-2d-demo').innerText += ctx_2d_demo.width.toString() + " " + ctx_2d_demo.height.toString();
     if ((0 < tr[0] && tr[0] < ctx_2d_demo.width) &&
         (0 < tr[1] && tr[1] < ctx_2d_demo.height)) {
             //draw a point
