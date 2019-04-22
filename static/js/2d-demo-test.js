@@ -9,16 +9,18 @@ ctx_2d_demo.strokeStyle = '#5A6068';
 
 // Init
 function demo_init(data) {
-    ctx_2d_demo.alpha = data[0];
+    ctx_2d_demo.alpha = data[1];
     // Inversed rotation
-    ctx_2d_demo.theta = -1 * data[1];
+    ctx_2d_demo.theta = -1 * data[2];
     // data[2, 3]: Origin point of this device on world-coordinates.
     // local x, y: Scaled origin point on world-coordinates.
-    ctx_2d_demo.local_x = data[2] / ctx_2d_demo.alpha;
-    ctx_2d_demo.local_y = data[3] / ctx_2d_demo.alpha;
+    ctx_2d_demo.local_x = data[0][0][0] / ctx_2d_demo.alpha;
+    ctx_2d_demo.local_y = data[0][0][1] / ctx_2d_demo.alpha;
+    ctx_2d_demo.width = canvas_2d_demo.getBoundingClientRect().width;
+    ctx_2d_demo.height = canvas_2d_demo.getBoundingClientRect().height;
 };
 socket.on('demo-init', function(data) {
-    demo_init(data);
+    //demo_init(data);
     ctx_2d_demo.width = canvas_2d_demo.getBoundingClientRect().width;
     ctx_2d_demo.height = canvas_2d_demo.getBoundingClientRect().height;
 });
@@ -38,20 +40,23 @@ function rotatePnt(angle, pnt_x, pnt_y) {
 }
 function transfromToLocal2d(pnt) {
     //pnt: 3d world-coord points array, y is height.
-    //scale
-    var x = pnt[0] / alpha;
-    var y = pnt[2] / alpha;
-
-    //Shift
-    x -= local_x;
-    y -= local_y;
+    // rotation
+    var ret = rotatePnt(ctx_2d_demo.theta, pnt[0], pnt[2]);
+    // shift
+    ret[0] -= ctx_2d_demo.local_x;
+    ret[1] -= ctx_2d_demo.local_y;
+    // scale
+    ret[0] /= ctx_2d_demo.alpha;
+    ret[1] /= ctx_2d_demo.alpha;
 
     //rotation (WIth local origin)
-    return rotatePnt(theta, x, y);
+    return ret
 }
 
 function drawDemo(pnt) {
     var tr = transfromToLocal2d(pnt);
+    console.log(tr);
+    
     if ((0 < tr[0] && tr[0] < ctx_2d_demo.width) &&
         (0 < tr[1] && tr[1] < ctx_2d_demo.height)) {
             //draw a point

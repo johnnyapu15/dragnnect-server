@@ -166,11 +166,13 @@ def dev_update(data):
             dev.rot = Vector3()
             dev.pos.x = 0
             dev.pos.z = 0
+            dev.alpha = 1
         # Calculate
         #setUsingLines(room[room_id], room_lines[room_id])
         setUsingLines2(room[room_id], room_lines[room_id])
         for key, dev in room[room_id].items():
-            ret[str(dev.device_id)] = dev.get2dPoints()
+            ret[str(dev.device_id)] = \
+                [dev.get2dPoints(), dev.alpha, dev.rot.z]
         print(ret)
         si.emit('draw', ret, room=room_id)
         # Reset
@@ -186,7 +188,11 @@ def dev_update(data):
             dev.setDeviceSize(0, 0)
         room_lines[room_id] = []
         return
-
+@socketio.on('2d-demo')
+def demo_2d():
+    data = dict()
+    data['pnt'] = [42, 0, 100]
+    si.emit('demo-receive', data, room=session['room_id'])
     
     # DeviceArrangement.setUsingLine(room[room_id][0], room[room_id][1])
 

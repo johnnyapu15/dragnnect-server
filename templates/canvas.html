@@ -88,7 +88,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/socketio_d.js') }}"></script>
     <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/dragnnect2d.js') }}"></script> -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/2d-demo.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/2d-demo-test.js') }}"></script>
     <script type="text/javascript" charset="utf-8">
       document.getElementById("textarea").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;
       data['id'] = room_id;
@@ -124,6 +124,7 @@
             // head.appendChild(script);
             break;
           case "content-3": 
+            socket.emit('2d-demo')
             // script.src = "{{ url_for('static', filename='js/2d-demo.js') }}";
             // head.appendChild(script);
             break;

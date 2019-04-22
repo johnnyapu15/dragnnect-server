@@ -93,6 +93,7 @@ class DeviceArrangement:
         self.timestamp = 0
         self.ntpDelay = 0
         self.ntpTimes = []
+        self.alpha = 1
     def __str__(self):
         ret = ""
         ret += "Device_id: " + str(self.device_id)
@@ -100,6 +101,7 @@ class DeviceArrangement:
         ret += "\nTimestamp: " + str(self.timestamp)
         ret += "\nPosition: " + str(self.pos.x) + ", " + str(self.pos.y) + ", " + str(self.pos.z)
         ret += "\nRotation: " + str(self.rot.x) + ", " + str(self.rot.y) + ", " + str(self.rot.z)
+        ret += "\nAlpha: " + str(self.alpha)
         return ret
     def __repr__(self):
         return self.__str__()
@@ -155,10 +157,17 @@ def setUsingLines(_devs, _lines):
 def setUsingLines2(_devs, _lines):
     for i in range(0, len(_lines), 2):
         r = getScalefactor(_lines[i], _lines[i+1])
-        for j in range(i+1, len(_lines)):
-            if (_lines[j].device_index == _lines[i+1].device_index):
-                _lines[j].startPoint *= r
-                _lines[j].endPoint *= r
+        # for j in range(i+1, len(_lines)):
+        #     if (_lines[j].device_index == _lines[i+1].device_index):
+        #         devs[_lines[j].device_index].alpha 
+        #             *= r * devs[_lines[i].device_index].alpha
+        #         _lines[j].startPoint *= r
+        #         _lines[j].endPoint *= r
+        _devs[_lines[i+1].device_index].alpha \
+            *= r * _devs[_lines[i].device_index].alpha
+        r = _devs[_lines[i+1].device_index].alpha
+        _lines[i+1].startPoint *= r
+        _lines[i+1].endPoint *= r
         ret = calcUsingLines(_lines[i], _lines[i+1])
         _devs[_lines[i + 1].device_index].width *= r
         _devs[_lines[i + 1].device_index].height *= r
