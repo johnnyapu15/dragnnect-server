@@ -16,8 +16,7 @@ function demo_init(data) {
     // local x, y: Scaled origin point on world-coordinates.
     ctx_2d_demo.local_x = data[0][0][0] / ctx_2d_demo.alpha;
     ctx_2d_demo.local_y = data[0][0][1] / ctx_2d_demo.alpha;
-    ctx_2d_demo.width = canvas_2d_demo.getBoundingClientRect().width;
-    ctx_2d_demo.height = canvas_2d_demo.getBoundingClientRect().height;
+
 };
 socket.on('demo-init', function(data) {
     //demo_init(data);
@@ -55,6 +54,8 @@ function transfromToLocal2d(pnt) {
 
 function drawDemo(pnt) {
     var tr = transfromToLocal2d(pnt);
+    ctx_2d_demo.width = canvas_2d_demo.getBoundingClientRect().width;
+    ctx_2d_demo.height = canvas_2d_demo.getBoundingClientRect().height;
     console.log(tr);
     //log point text
     document.getElementById('a-2d-demo').innerText = "pnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
