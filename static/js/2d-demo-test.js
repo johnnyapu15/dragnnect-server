@@ -52,11 +52,19 @@ function transfromToLocal2d(pnt) {
     return ret
 }
 
+function translateMap() {
+    ctx_2d_demo.rotate(ctx_2d_demo.theta);
+    ctx_2d_demo.translate(-ctx_2d_demo.local_x, -ctx_2d_demo.local_y);
+};
+
 function drawDemo(pnt) {
-    var tr = transfromToLocal2d(pnt);
+    //var tr = transfromToLocal2d(pnt);
+    var tr = [pnt[0], pnt[2]];
     ctx_2d_demo.width = canvas_2d_demo.getBoundingClientRect().width;
     ctx_2d_demo.height = canvas_2d_demo.getBoundingClientRect().height;
+    translateMap();
     console.log(tr);
+    
     //log point text
     document.getElementById('a-2d-demo').innerText = "pnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
     document.getElementById('a-2d-demo').innerText += ctx_2d_demo.width.toString() + " " + ctx_2d_demo.height.toString();
@@ -64,8 +72,30 @@ function drawDemo(pnt) {
         (0 < tr[1] && tr[1] < ctx_2d_demo.height)) {
             //draw a point
             ctx_2d_demo.clearRect(0, 0, ctx_2d_demo.width*2, ctx_2d_demo.height*2);
-
             ctx_2d_demo.moveTo(tr[0], tr[1]);
-            ctx_2d_demo.stroke();
+            ctx_2d_demo.fillRect(tr[0], tr[1], tr[0] + 10, tr[1] + 50);
         }
+};
+
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect(); 
+    return { x: evt.clientX - rect.left, y: evt.clientY - rect.top }; 
 }
+
+function writeMessage(canvas, message) {
+    var context = canvas.getContext('2d'); 
+    context.clearRect(0, 0, canvas.width, canvas.height); 
+    context.font = '18pt Calibri'; 
+    context.fillStyle = 'black'; 
+    context.fillText(message, 10, 25); 
+}
+
+
+canvas_2d_demo.addEventListener('mousemove', function(evt) {
+    var mousePos = getMousePos(canvas_2d_demo, evt); 
+    var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+    //TODO-20190422: tr is not in sight.
+    document.getElementById('a-2d-demo').innerText = message + "\npnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
+    document.getElementById('a-2d-demo').innerText += ctx_2d_demo.width.toString() + " " + ctx_2d_demo.height.toString();
+    //writeMessage(canvas, message); 
+}, false);

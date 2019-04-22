@@ -144,7 +144,7 @@ var colors = [
   '#FFFF00',
   '#00FFFF',
   '#FF00FF'
-]
+];
 function coord_param_set() {
   ctx_dragnnect.lineWidth = 3;
   ctx_dragnnect.lineJoin = 'round';
@@ -154,14 +154,14 @@ function coord_param_set() {
   ctx_dragnnect.font = "50px Arial";
   ctx_dragnnect.fillStyle = colors[dev_id];
   ctx_dragnnect.fillText(dev_id, 20, 50);
-}
+};
 
 socket.on('draw', function(data) {
   ctx_dragnnect.clearRect(0, 0, w*2, h*2);
   data_devs = data;
   coord_param_set();
   dragnnect2d_draw(data_devs);
-})
+});
 
 function dragnnect2d_draw(devs) {
     if (canvas_dragnnect.getContext) {
@@ -189,7 +189,7 @@ function dragnnect2d_draw(devs) {
       // dragnnect2d_ctx.lineTo(100, 25);
       
     }
-  }
+  };
 
 // window.addEventListener("beforeunload", function (evt) {
 //   // var http = new XMLHttpRequest();
