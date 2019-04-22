@@ -56,14 +56,14 @@ function transfromToLocal2d(pnt) {
 function drawDemo(pnt) {
     var tr = transfromToLocal2d(pnt);
     console.log(tr);
-    
+    //log point text
+    document.getElementById('a-2d-demo').innerText = "pnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
+
     if ((0 < tr[0] && tr[0] < ctx_2d_demo.width) &&
         (0 < tr[1] && tr[1] < ctx_2d_demo.height)) {
             //draw a point
             ctx_2d_demo.clearRect(0, 0, ctx_2d_demo.width*2, ctx_2d_demo.height*2);
 
-            //log point text
-            document.getElementById('a-2d-demo').innerText = "pnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
             ctx_2d_demo.moveTo(tr[0], tr[1]);
             ctx_2d_demo.stroke();
         }
