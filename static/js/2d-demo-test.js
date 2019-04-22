@@ -9,9 +9,6 @@ ctx_2d_demo.strokeStyle = '#5A6068';
 
 // Init
 function demo_init(data) {
-    ctx_2d_demo.
-}
-socket.on('demo-init', function(data) {
     ctx_2d_demo.alpha = data[0];
     // Inversed rotation
     ctx_2d_demo.theta = -1 * data[1];
@@ -19,6 +16,9 @@ socket.on('demo-init', function(data) {
     // local x, y: Scaled origin point on world-coordinates.
     ctx_2d_demo.local_x = data[2] / ctx_2d_demo.alpha;
     ctx_2d_demo.local_y = data[3] / ctx_2d_demo.alpha;
+};
+socket.on('demo-init', function(data) {
+    demo_init(data);
     ctx_2d_demo.width = canvas_2d_demo.getBoundingClientRect().width;
     ctx_2d_demo.height = canvas_2d_demo.getBoundingClientRect().height;
 });

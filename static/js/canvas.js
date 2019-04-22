@@ -181,6 +181,7 @@ function dragnnect2d_draw(devs) {
         ctx_dragnnect.fillStyle = '#212121';
         ctx_dragnnect.fillText(i, dev[0][0]/10 + w + 10, dev[0][1]/10 + h + 30);
       }
+      
       //ctx_2d_demo.theta =       
       
       // dragnnect2d_ctx.lineTo(100, 75);
