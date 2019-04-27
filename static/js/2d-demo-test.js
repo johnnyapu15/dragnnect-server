@@ -73,7 +73,7 @@ function transfromToLocal2d(pnt) {
 
 function translateMap() {
     ctx_2d_demo.rotate(ctx_2d_demo.theta);
-    ctx_2d_demo.scale(1 / ctx_2d_demo.alpha, 1 / ctx_2d_demo.alpha);
+    ctx_2d_demo.scale(ctx_2d_demo.alpha, ctx_2d_demo.alpha);
     ctx_2d_demo.translate(-ctx_2d_demo.local_x, -ctx_2d_demo.local_y);
 };
 var tr = [0, 0];
