@@ -21,8 +21,8 @@ function demo_init(data) {
 };
 socket.on('demo-init', function(data) {
     //demo_init(data);
-    ctx_2d_demo.width = canvas_2d_demo.getBoundingClientRect().width;
-    ctx_2d_demo.height = canvas_2d_demo.getBoundingClientRect().height;
+    ctx_2d_demo.width = canvas_2d_demo.width;
+    ctx_2d_demo.height = canvas_2d_demo.height;
 });
 
 // Listening function
@@ -33,8 +33,8 @@ socket.on('demo-receive', function(data) {
 });
 
 socket.on('demo-2d-line', function(data) {
-    ctx_2d_demo.width = canvas_2d_demo.getBoundingClientRect().width;
-    ctx_2d_demo.height = canvas_2d_demo.getBoundingClientRect().height;
+    ctx_2d_demo.width = canvas_2d_demo.width;
+    ctx_2d_demo.height = canvas_2d_demo.height;
     ctx_2d_demo.clearRect(0, 0, ctx_2d_demo.width, ctx_2d_demo.height);
     ctx_2d_demo.restore();
     translateMap();
@@ -88,7 +88,7 @@ function drawDemo(pnt) {
     if ((0 < tr[0] && tr[0] < ctx_2d_demo.width) &&
         (0 < tr[1] && tr[1] < ctx_2d_demo.height)) {
             //draw a point
-            ctx_2d_demo.clearRect(0, 0, ctx_2d_demo.width*2, ctx_2d_demo.height*2);
+            ctx_2d_demo.clearRect(0, 0, ctx_2d_demo.width, ctx_2d_demo.height);
             ctx_2d_demo.moveTo(tr[0], tr[1]);
             ctx_2d_demo.fillRect(tr[0], tr[1], tr[0] + 10, tr[1] + 50);
         }
