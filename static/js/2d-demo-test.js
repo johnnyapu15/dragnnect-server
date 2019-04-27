@@ -35,8 +35,10 @@ socket.on('demo-receive', function(data) {
 socket.on('demo-2d-line', function(data) {
     ctx_2d_demo.width = canvas_2d_demo.width;
     ctx_2d_demo.height = canvas_2d_demo.height;
-    ctx_2d_demo.clearRect(0, 0, ctx_2d_demo.width, ctx_2d_demo.height);
+    ctx_2d_demo.clearRect(ctx_2d_demo.local_x - 100, ctx_2d_demo.local_y - 100,
+        ctx_2d_demo.local_x + ctx_2d_demo.width + 100, ctx_2d_demo.local_y + ctx_2d_demo.height + 100);
     ctx_2d_demo.restore();
+    ctx_2d_demo.save();
     translateMap();
 
     data['lines'].forEach(l => {
