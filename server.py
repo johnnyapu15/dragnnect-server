@@ -131,12 +131,14 @@ def ntp_1(t1):
 @socketio.on('reset_lines')
 def reset_lines():
     room_id = session['room_id']
-    print(str(room_id) + ": reset lines...")
     for key, dev in room[room_id].items():
         dev.setDeviceSize(0, 0)
     room_lines[room_id] = []
+    print(str(room_id) + ": reset lines...")
+
 @socketio.on('device_update')
 def dev_update(data):
+    print(session['device_id'])
     print(data)
     #dpmm = data['dpi_x'] / 25.4
     #dpv = dpmm / 5
@@ -191,8 +193,13 @@ def dev_update(data):
 @socketio.on('2d-demo')
 def demo_2d():
     data = dict()
-    data['pnt'] = [42, 0, 100]
-    si.emit('demo-receive', data, room=session['room_id'])
+    data['lines'] = []
+    for i in range(-1000, 1000, 50):
+        data['lines'].append([-1000, i])
+        data['lines'].append([1000, i])
+        data['lines'].append([i, -1000])
+        data['lines'].append([i, 1000])
+    si.emit('demo-2d-line', data, room=session['room_id'])
     
     # DeviceArrangement.setUsingLine(room[room_id][0], room[room_id][1])
 

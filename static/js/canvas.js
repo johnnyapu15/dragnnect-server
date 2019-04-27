@@ -111,7 +111,7 @@ var onPaint = function() {
 function get11Pnts(arr) {
   ret = [];
   if (arr.length < 10) {
-    alert("Plz push reset btn and Draw long line!");
+    alert("Too short line: Plz push reset btn and Draw long line!");
     ret.push([-1, -1, -1]);
     return ret;
   }
@@ -169,7 +169,7 @@ function dragnnect2d_draw(devs) {
       for (var key in devs) {
         var dev = devs[key];
         i = parseInt(key);
-        pnts = dev[0]
+        pnts = dev[0];
         ctx_dragnnect.moveTo(pnts[0][0]/10 + w, pnts[0][1]/10 + h);
         ctx_dragnnect.beginPath();
         pnts.forEach(pnt => {
