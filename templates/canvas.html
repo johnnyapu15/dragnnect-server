@@ -112,6 +112,22 @@
       function openTab(evt, _id){
         var i, tabcontent, tablinks;
         i = 0;
+        
+        if (i == 1) return;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        
+        for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+
+        tablinks = document.getElementsByClassName("tablinks")
+        for (i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" show", "");
+        }
+        document.getElementById(_id).style.display = "block";
+        evt.currentTarget.className += " show";
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
         switch (_id) {
           case "content-1":
 
@@ -135,22 +151,6 @@
           case "content-5": 
             break;
         }
-        if (i == 1) return;
-        tabcontent = document.getElementsByClassName("tabcontent");
-        
-        for (i = 0; i < tabcontent.length; i++) {
-          tabcontent[i].style.display = "none";
-        }
-
-        tablinks = document.getElementsByClassName("tablinks")
-        for (i = 0; i < tablinks.length; i++) {
-          tablinks[i].className = tablinks[i].className.replace(" show", "");
-        }
-        document.getElementById(_id).style.display = "block";
-        evt.currentTarget.className += " show";
-        // var script = document.createElement('script');
-        // script.type = 'text/javascript';
-
 
       }
 

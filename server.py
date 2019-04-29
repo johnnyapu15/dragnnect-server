@@ -194,12 +194,16 @@ def dev_update(data):
 def demo_2d():
     data = dict()
     data['lines'] = []
-    for i in range(-1000, 1000, 50):
-        data['lines'].append([-1000, i])
-        data['lines'].append([1000, i])
-        data['lines'].append([i, -1000])
-        data['lines'].append([i, 1000])
+    for i in range(-3000, 3000, 100):
+        data['lines'].append([-3000, i])
+        data['lines'].append([3000, i])
+        data['lines'].append([i, -3000])
+        data['lines'].append([i, 3000])
     si.emit('demo-2d-line', data, room=session['room_id'])
+@socketio.on('2d-demo-pnt')
+def demo_2d_pnt(data):
+    print("pnt demo..." + str(data))
+    si.emit('2d-pnt-draw', data, room=session['room_id'])
     
     # DeviceArrangement.setUsingLine(room[room_id][0], room[room_id][1])
 
