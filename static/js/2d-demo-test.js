@@ -11,6 +11,11 @@ ctx_2d_demo.strokeStyle = '#5A6068';
 ctx_2d_demo.save();
 
 var img_coord = [0, 0];
+var img_delta = [0, 0];
+var img_anim = [0, 0];
+var an_f = 0.4;
+var anim = false;
+var update = false;
 // Init
 function demo_init(data) {
     ctx_2d_demo.alpha = data[1];
@@ -65,11 +70,14 @@ function line_draw(data) {
     });
 }
 socket.on('2d-pnt-draw', function(data) {
-   img_coord[0] += data.x;
-   img_coord[1] += data.y;
+
    line_draw(lineData);
-   draw(img_coord); 
+    anim = data.v; //true
+   img_delta[0] = data.x;
+   img_delta[1] = data.y;
+   update = true;
 });
+window.requestAnimationFrame(draw);
 // Rotate point with local origin. Return array(x, y).
 function rotatePnt(angle, pnt_x, pnt_y) {
     var x = Math.cos(angle) * pnt_x - Math.sin(angle) * pnt_y;
@@ -119,9 +127,27 @@ function drawDemo(pnt) {
 
 var gkhead = new Image;
 gkhead.src = 'http://phrogz.net/tmp/gkhead.jpg';
-function draw(pnt) {
-    console.log("drawing..." + pnt[0] + ", " + pnt[1])
-    ctx_2d_demo.drawImage(gkhead, pnt[0], pnt[1]);
+function draw() {
+    if (update) {
+        if (anim) {
+            img_delta[0] /= 2;
+            img_delta[1] /= 2;
+            if (img_delta[0] < 2)
+                update = false;
+        }
+        else {
+            
+            update = false;
+        }
+        img_coord[0] -= img_delta[0];
+        img_coord[1] -= img_delta[1];
+        img_anim[0] = an_f * img_anim[0] + (1 - an_f) * img_coord[0];
+        img_anim[1] = an_f * img_anim[1] + (1 - an_f) * img_coord[1];
+
+    }
+    console.log("drawing..." + img_coord[0] + ", " + img_coord[1]);
+    ctx_2d_demo.drawImage(gkhead, img_anim[0], img_anim[1]);
+    window.requestAnimationFrame(draw);
 }
 
 function getMousePos(canvas, evt) {
@@ -146,9 +172,9 @@ canvas_2d_demo.addEventListener('mousedown', function(evt) {
 canvas_2d_demo.addEventListener('mousemove', function(evt) {
     if (dragStart) {
         var mousePos = getMousePos(canvas_2d_demo, evt); 
-        var delta = {x: startPos.x - mousePos.x, y: startPos.y - mousePos.y};
+        var delta = {x: startPos.x - mousePos.x, y: startPos.y - mousePos.y, v:false};
         var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
-        console.log("Delta: " + delta.x + ', ' + delta.y);
+        //console.log("Delta: " + delta.x + ', ' + delta.y);
         socket.emit('2d-demo-pnt', delta);
         //document.getElementById('a-2d-demo').innerText = message + "\npnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
         document.getElementById('a-2d-demo').innerText = message + "\n" + ctx_2d_demo.local_x.toString() + " " + ctx_2d_demo.local_y.toString();
@@ -158,6 +184,8 @@ canvas_2d_demo.addEventListener('mousemove', function(evt) {
 }, false);
 canvas_2d_demo.addEventListener('mouseup', function(evt) {
     dragStart = false;
+    var delta = {x: 0, y:0, v: true};
+    socket.emit('2d-demo-pnt', delta);
 });
 
 canvas_2d_demo.addEventListener('touchstart', function(evt) {
@@ -168,13 +196,18 @@ canvas_2d_demo.addEventListener('touchstart', function(evt) {
 canvas_2d_demo.addEventListener('touchmove', function(evt) {
     if (dragStart) {
         var mousePos = {x: evt.changedTouches[0].pageX, y:evt.changedTouches[0].pageY}; 
-        var delta = {x: startPos.x - mousePos.x, y: startPos.y - mousePos.y};
+        var delta = {x: startPos.x - mousePos.x, y: startPos.y - mousePos.y, v:false};
         var message = 'Touch position: ' + mousePos.x + ',' + mousePos.y;
-        console.log("Delta: " + delta.x + ', ' + delta.y);
+        //console.log("Delta: " + delta.x + ', ' + delta.y);
         socket.emit('2d-demo-pnt', delta);
         //document.getElementById('a-2d-demo').innerText = message + "\npnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
         document.getElementById('a-2d-demo').innerText = message + "\n" + ctx_2d_demo.local_x.toString() + " " + ctx_2d_demo.local_y.toString();
         //writeMessage(canvas, message); 
         startPos = mousePos;
     }
-})
+}, false);
+canvas_2d_demo.addEventListener('touchend', function(evt) {
+    dragStart = false;
+    var delta = {x: 0, y:0, v: true};
+    socket.emit('2d-demo-pnt', delta);
+}, false);
