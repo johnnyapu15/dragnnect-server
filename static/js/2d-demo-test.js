@@ -12,7 +12,6 @@ ctx_2d_demo.save();
 
 var img_coord = [0, 0];
 var img_delta = [0, 0];
-var img_anim = [0, 0];
 var an_f = 0.4;
 var anim = false;
 var update = false;
@@ -53,7 +52,7 @@ socket.on('demo-2d-line', function(data) {
     // ctx_2d_demo.clearRect(ctx_2d_demo.local_x - 100, ctx_2d_demo.local_y - 100,
     //     ctx_2d_demo.local_x + ctx_2d_demo.width + 100, ctx_2d_demo.local_y + ctx_2d_demo.height + 100);
     line_draw(data);
-    draw([0, 0]);
+    //draw();
     img_coord = [0,0];
 });
 function line_draw(data) {
@@ -82,9 +81,9 @@ function line_draw(data) {
 socket.on('2d-pnt-draw', function(data) {
 
    line_draw(lineData);
-    anim = data.v; //true
-   img_delta[0] = data.x;
-   img_delta[1] = data.y;
+    anim = data[2]; //true
+   img_delta[0] = data[0];
+   img_delta[1] = data[1];
    update = true;
 });
 window.requestAnimationFrame(draw);
@@ -149,14 +148,13 @@ function draw() {
             
             update = false;
         }
-        img_coord[0] -= img_delta[0];
-        img_coord[1] -= img_delta[1];
-        img_anim[0] = an_f * img_anim[0] + (1 - an_f) * img_coord[0];
-        img_anim[1] = an_f * img_anim[1] + (1 - an_f) * img_coord[1];
+
+        img_coord[0] = an_f * img_coord[0] + (1 - an_f) * img_delta[0];
+        img_coord[1] = an_f * img_coord[1] + (1 - an_f) * img_delta[1];
 
     }
     console.log("drawing..." + img_coord[0] + ", " + img_coord[1]);
-    ctx_2d_demo.drawImage(gkhead, img_anim[0], img_anim[1]);
+    ctx_2d_demo.drawImage(gkhead, img_coord[0], img_coord[1]);
     window.requestAnimationFrame(draw);
 }
 

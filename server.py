@@ -36,6 +36,7 @@ def roomInit():
         room_lines[id_str] = []
     room_count[id_str] += 1
     session['device_id'] = room_sequence[id_str]
+    session['2d_demo'] = [0,0,0]
     room_sequence[id_str] += 1
     room[id_str][session['device_id']] = DeviceArrangement(session['device_id'])
     #print("Index: " + len(room[id_str]))
@@ -207,7 +208,10 @@ def demo_2d():
 @socketio.on('2d-demo-pnt')
 def demo_2d_pnt(data):
     print("pnt demo..." + str(data))
-    si.emit('2d-pnt-draw', data, room=session['room_id'])
+    session['2d_demo'][0] -= data['x']
+    session['2d_demo'][1] -= data['y']
+    session['2d_demo'][2] = data['v']
+    si.emit('2d-pnt-draw', session['2d_demo'], room=session['room_id'])
     
     # DeviceArrangement.setUsingLine(room[room_id][0], room[room_id][1])
 
