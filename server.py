@@ -199,6 +199,10 @@ def demo_2d():
         data['lines'].append([3000, i])
         data['lines'].append([i, -3000])
         data['lines'].append([i, 3000])
+    data['dl'] = []
+    for i in range(-3000, 3000, 100):
+        data['dl'].append([-3000, i])
+        data['dl'].append([3000, i])
     si.emit('demo-2d-line', data, room=session['room_id'])
 @socketio.on('2d-demo-pnt')
 def demo_2d_pnt(data):

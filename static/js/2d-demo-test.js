@@ -68,6 +68,16 @@ function line_draw(data) {
         ctx_2d_demo.lineTo(l[0], l[1]);
         ctx_2d_demo.stroke();
     });
+    data['dl'].forEach(l => {
+        ctx_2d_demo.beginPath();
+        ctx_2d_demo.moveTo(l[0], l[1]);
+    });
+    for (var i = 0; i < 60;i+=2) {
+        ctx_2d_demo.beginPath();
+        ctx_2d_demo.moveTo(data['dl'][i][0], data['dl'][i][1]);
+        ctx_2d_demo.lineTo(data['dl'][i+1][0], data['dl'][i+1][1]);
+        ctx_2d_demo.stroke();
+    }
 }
 socket.on('2d-pnt-draw', function(data) {
 
@@ -101,8 +111,8 @@ function transfromToLocal2d(pnt) {
 
 function translateMap() {
     ctx_2d_demo.rotate(ctx_2d_demo.theta);
-    ctx_2d_demo.scale(1 / ctx_2d_demo.alpha, 1 / ctx_2d_demo.alpha);
     ctx_2d_demo.translate(-ctx_2d_demo.local_x, -ctx_2d_demo.local_y);
+    ctx_2d_demo.scale(1 / ctx_2d_demo.alpha, 1 / ctx_2d_demo.alpha);
 };
 var tr = [0, 0];
 function drawDemo(pnt) {
