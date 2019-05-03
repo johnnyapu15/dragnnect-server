@@ -41,6 +41,7 @@ socket.on('demo-receive', function(data) {
     // Transform the pnt to local-coordinates.
     drawDemo(data['pnt']);
 });
+
 var lineData;
 socket.on('demo-2d-line', function(data) {
     lineData = data;
@@ -185,7 +186,9 @@ canvas_2d_demo.addEventListener('mousemove', function(evt) {
         var delta = {x: startPos.x - mousePos.x, y: startPos.y - mousePos.y, v:false};
         var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
         //console.log("Delta: " + delta.x + ', ' + delta.y);
-        socket.emit('2d-demo-pnt', delta);
+        img_delta[0] -= delta.x;
+        img_delta[1] -= delta.y;
+        //socket.emit('2d-demo-pnt', delta);
         //document.getElementById('a-2d-demo').innerText = message + "\npnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
         document.getElementById('a-2d-demo').innerText = message + "\n" + ctx_2d_demo.local_x.toString() + " " + ctx_2d_demo.local_y.toString();
         //writeMessage(canvas, message); 

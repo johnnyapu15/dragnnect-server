@@ -22,7 +22,7 @@ socket.emit('ntp_1', t1);
 });
 
 function resetLines() {
-socket.emit('reset_lines');
+    socket.emit('reset_lines');
 }
 
 //socket.on('connect', function() {
