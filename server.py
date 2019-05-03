@@ -19,6 +19,7 @@ room_count = dict()
 room = dict() # Device object list of room
 room_sequence = dict() # object list of room
 room_lines = dict()
+
 @app.route('/', methods=['GET', 'POST'])
 def main():
     return render_template("roomDoor.html")
@@ -31,12 +32,13 @@ def roomInit():
     session['room_id'] = id_str
     if not(id_str in room.keys()):
         room[id_str] = dict()
+        room[id_str]['2d_demo'] = [0,0,False]
         room_sequence[id_str] = 0
         room_count[id_str] = 0
         room_lines[id_str] = []
-    room_count[id_str] += 1
-    session['device_id'] = room_sequence[id_str]
+    room_count[id_str] += 1 
     room_sequence[id_str] += 1
+    session['device_id'] = room_sequence[id_str]
     room[id_str][session['device_id']] = DeviceArrangement(session['device_id'])
     #print("Index: " + len(room[id_str]))
     return redirect(url_for('room_func', id = session['room_id']))
@@ -165,21 +167,24 @@ def dev_update(data):
         # Env#_User#_Timestamp_dev1_dev2.txt
         # Init
         for key, dev in room[room_id].items():
-            dev.rot = Vector3()
-            dev.pos.x = 0
-            dev.pos.z = 0
-            dev.alpha = 1
+            if (key!='2d_demo'):
+                dev.rot = Vector3()
+                dev.pos.x = 0
+                dev.pos.z = 0
+                dev.alpha = 1
         # Calculate
         #setUsingLines(room[room_id], room_lines[room_id])
         setUsingLines2(room[room_id], room_lines[room_id])
         for key, dev in room[room_id].items():
-            ret[str(dev.device_id)] = \
-                [dev.get2dPoints(), dev.alpha, dev.rot.z]
+            if (key!='2d_demo'):
+                ret[str(dev.device_id)] = \
+                    [dev.get2dPoints(), dev.alpha, dev.rot.z]
         print(ret)
         si.emit('draw', ret, room=room_id)
         # Reset
         for key, dev in room[room_id].items():
-            dev.setDeviceSize(0, 0)
+            if (key!='2d_demo'):
+                dev.setDeviceSize(0, 0)
         room_lines[room_id] = []
     elif 2 * count - 2 > len(room_lines[room_id]):
         # Listening,,,
@@ -187,7 +192,8 @@ def dev_update(data):
     else:
         # TODO: draw or reset
         for key, dev in room[room_id].items():
-            dev.setDeviceSize(0, 0)
+            if (key!='2d_demo'):
+                dev.setDeviceSize(0, 0)
         room_lines[room_id] = []
         return
 @socketio.on('2d-demo')
@@ -206,8 +212,12 @@ def demo_2d():
     si.emit('demo-2d-line', data, room=session['room_id'])
 @socketio.on('2d-demo-pnt')
 def demo_2d_pnt(data):
-    print("pnt demo..." + str(data))
-    si.emit('2d-pnt-draw', data, room=session['room_id'])
+    id_str = str(session['room_id'])
+    room[id_str]['2d_demo'][0] -= data['x']
+    room[id_str]['2d_demo'][1] -= data['y']
+    room[id_str]['2d_demo'][2] = data['v']
+    print("pnt demo..." + str(room[id_str]['2d_demo']))
+    si.emit('2d-pnt-draw', room[id_str]['2d_demo'], room=session['room_id'])
     
     # DeviceArrangement.setUsingLine(room[room_id][0], room[room_id][1])
 

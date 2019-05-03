@@ -12,10 +12,10 @@ ctx_2d_demo.save();
 
 var img_coord = [0, 0];
 var img_delta = [0, 0];
-var img_anim = [0, 0];
 var an_f = 0.4;
 var anim = false;
 var update = false;
+var lines_2d = {lines:[[0,0]], dl:[[0,0],[0,0]]};
 // Init
 function demo_init(data) {
     ctx_2d_demo.alpha = data[1];
@@ -53,39 +53,40 @@ socket.on('demo-2d-line', function(data) {
 
     // ctx_2d_demo.clearRect(ctx_2d_demo.local_x - 100, ctx_2d_demo.local_y - 100,
     //     ctx_2d_demo.local_x + ctx_2d_demo.width + 100, ctx_2d_demo.local_y + ctx_2d_demo.height + 100);
-    line_draw(data);
-    draw([0, 0]);
-    img_coord = [0,0];
+    //line_draw();
+    //draw();
+    //img_coord = [0,0];
 });
-function line_draw(data) {
+
+function remap() {
     ctx_2d_demo.restore();
     ctx_2d_demo.clearRect(0, 0, ctx_2d_demo.width, ctx_2d_demo.height);
     ctx_2d_demo.save();
     translateMap();
-
-    data['lines'].forEach(l => {
+}
+function line_draw() {
+    lines_2d['lines'].forEach(l => {
         ctx_2d_demo.beginPath();
         ctx_2d_demo.moveTo(0, 0);
         ctx_2d_demo.lineTo(l[0], l[1]);
         ctx_2d_demo.stroke();
     });
-    data['dl'].forEach(l => {
+    lines_2d['dl'].forEach(l => {
         ctx_2d_demo.beginPath();
         ctx_2d_demo.moveTo(l[0], l[1]);
     });
-    for (var i = 0; i < 60;i+=2) {
+    for (var i = 0; i < lines_2d['dl'].length / 2;i+=2) {
         ctx_2d_demo.beginPath();
-        ctx_2d_demo.moveTo(data['dl'][i][0], data['dl'][i][1]);
-        ctx_2d_demo.lineTo(data['dl'][i+1][0], data['dl'][i+1][1]);
+        ctx_2d_demo.moveTo(lines_2d['dl'][i][0], lines_2d['dl'][i][1]);
+        ctx_2d_demo.lineTo(lines_2d['dl'][i+1][0], lines_2d['dl'][i+1][1]);
         ctx_2d_demo.stroke();
     }
 }
 socket.on('2d-pnt-draw', function(data) {
-
-   line_draw(lineData);
-    anim = data.v; //true
-   img_delta[0] = data.x;
-   img_delta[1] = data.y;
+   lines_2d = lineData;
+   img_delta[0] = data[0];
+   img_delta[1] = data[1];
+   anim = data[2]; //true
    update = true;
 });
 window.requestAnimationFrame(draw);
@@ -122,7 +123,7 @@ function drawDemo(pnt) {
     ctx_2d_demo.width = canvas_2d_demo.getBoundingClientRect().width;
     ctx_2d_demo.height = canvas_2d_demo.getBoundingClientRect().height;
     translateMap();
-    console.log(tr);
+    //console.log(tr);
     
     //log point text
     document.getElementById('a-2d-demo').innerText = "pnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
@@ -139,25 +140,27 @@ function drawDemo(pnt) {
 var gkhead = new Image;
 gkhead.src = 'http://phrogz.net/tmp/gkhead.jpg';
 function draw() {
+    remap();
+    line_draw();
     if (update) {
         if (anim) {
-            img_delta[0] /= 2;
-            img_delta[1] /= 2;
-            if (img_delta[0] < 2)
-                update = false;
+            // img_delta[0] /= 2;
+            // img_delta[1] /= 2;
+            // if (img_delta[0] < 2) update = false;
+            img_coord[0] = an_f * img_coord[0] + (1 - an_f) * img_delta[0];
+            img_coord[1] = an_f * img_coord[1] + (1 - an_f) * img_delta[1];
         }
         else {
-            
+            img_coord[0] = an_f * img_coord[0] + (1 - an_f) * img_delta[0];
+            img_coord[1] = an_f * img_coord[1] + (1 - an_f) * img_delta[1];            
             update = false;
         }
-        img_coord[0] -= img_delta[0];
-        img_coord[1] -= img_delta[1];
-        img_anim[0] = an_f * img_anim[0] + (1 - an_f) * img_coord[0];
-        img_anim[1] = an_f * img_anim[1] + (1 - an_f) * img_coord[1];
+
+
 
     }
-    console.log("drawing..." + img_coord[0] + ", " + img_coord[1]);
-    ctx_2d_demo.drawImage(gkhead, img_anim[0], img_anim[1]);
+    //console.log("drawing..." + img_coord[0] + ", " + img_coord[1]);
+    ctx_2d_demo.drawImage(gkhead, img_coord[0], img_coord[1]);
     window.requestAnimationFrame(draw);
 }
 
@@ -183,7 +186,7 @@ canvas_2d_demo.addEventListener('mousedown', function(evt) {
 canvas_2d_demo.addEventListener('mousemove', function(evt) {
     if (dragStart) {
         var mousePos = getMousePos(canvas_2d_demo, evt); 
-        var delta = {x: startPos.x - mousePos.x, y: startPos.y - mousePos.y, v:false};
+        var delta = {x: (startPos.x - mousePos.x) * 3, y: (startPos.y - mousePos.y)*3, v:false};
         var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
         //console.log("Delta: " + delta.x + ', ' + delta.y);
         img_delta[0] -= delta.x;
@@ -209,7 +212,7 @@ canvas_2d_demo.addEventListener('touchstart', function(evt) {
 canvas_2d_demo.addEventListener('touchmove', function(evt) {
     if (dragStart) {
         var mousePos = {x: evt.changedTouches[0].pageX, y:evt.changedTouches[0].pageY}; 
-        var delta = {x: startPos.x - mousePos.x, y: startPos.y - mousePos.y, v:false};
+        var delta = {x: (startPos.x - mousePos.x) * 3, y: (startPos.y - mousePos.y) * 3, v:false};
         var message = 'Touch position: ' + mousePos.x + ',' + mousePos.y;
         //console.log("Delta: " + delta.x + ', ' + delta.y);
         socket.emit('2d-demo-pnt', delta);
@@ -224,3 +227,9 @@ canvas_2d_demo.addEventListener('touchend', function(evt) {
     var delta = {x: 0, y:0, v: true};
     socket.emit('2d-demo-pnt', delta);
 }, false);
+
+
+// Sync 2d demo with timer
+function sync() {
+    
+}
