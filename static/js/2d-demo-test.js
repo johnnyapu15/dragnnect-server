@@ -11,9 +11,10 @@ ctx_2d_demo.strokeStyle = '#5A6068';
 ctx_2d_demo.save();
 
 var img_coord = [0, 0];
+var img_goal = [0, 0];
 var img_delta = [0, 0];
 var an_f = 0.4;
-var anim = false;
+var uploadValue = false;
 var update = false;
 var lines_2d = {lines:[[0,0]], dl:[[0,0],[0,0]]};
 // Init
@@ -37,8 +38,9 @@ function lineInit(line) {
 };
 
 function pntUpdate(pnt) {
-    img_delta[0] = pnt[0];
-    img_delta[1] = pnt[1];
+
+    img_goal[0] = pnt[0];
+    img_goal[1] = pnt[1];
     update = true;
 };
 // socket.on('demo-init', function(data) {
@@ -153,18 +155,18 @@ function draw() {
     remap();
     line_draw();
     if (update) {
-        if (anim) {
-            // img_delta[0] /= 2;
-            // img_delta[1] /= 2;
-            // if (img_delta[0] < 2) update = false;
-            img_coord[0] = an_f * img_coord[0] + (1 - an_f) * img_delta[0];
-            img_coord[1] = an_f * img_coord[1] + (1 - an_f) * img_delta[1];
-        }
-        else {
-            img_coord[0] = an_f * img_coord[0] + (1 - an_f) * img_delta[0];
-            img_coord[1] = an_f * img_coord[1] + (1 - an_f) * img_delta[1];            
-            if (Math.abs(img_coord[0] - img_delta[0]) < 1) update = false;
-        }
+        // if (anim) {
+        //     // img_delta[0] /= 2;
+        //     // img_delta[1] /= 2;
+        //     // if (img_delta[0] < 2) update = false;
+        //     img_coord[0] = an_f * img_coord[0] + (1 - an_f) * img_goal[0];
+        //     img_coord[1] = an_f * img_coord[1] + (1 - an_f) * img_goal[1];
+        // }
+        //else {
+            img_coord[0] = an_f * img_coord[0] + (1 - an_f) * img_goal[0];
+            img_coord[1] = an_f * img_coord[1] + (1 - an_f) * img_goal[1];            
+            if (Math.abs(img_coord[0] - img_goal[0]) < 1) update = false;
+        //}
 
 
 
@@ -195,6 +197,8 @@ canvas_2d_demo.addEventListener('mousedown', function(evt) {
 }, false);
 canvas_2d_demo.addEventListener('mousemove', function(evt) {
     if (dragStart) {
+        uploadValue = true;
+        update = true;
         var mousePos = getMousePos(canvas_2d_demo, evt); 
         var delta = {x: (startPos.x - mousePos.x) * 3, y: (startPos.y - mousePos.y)*3, v:false};
         var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
@@ -202,7 +206,11 @@ canvas_2d_demo.addEventListener('mousemove', function(evt) {
         // img_delta[0] -= delta.x;
         // img_delta[1] -= delta.y;
         //socket.emit('2d-demo-pnt', delta);
-        sendPnt(delta);
+        //sendPnt(delta);
+        img_delta[0] += (startPos.x - mousePos.x) * 3;
+        img_delta[1] += (startPos.y - mousePos.y) * 3
+        img_goal[0] -= (startPos.x - mousePos.x) * 3;
+        img_goal[1] -= (startPos.y - mousePos.y) * 3;
         //document.getElementById('a-2d-demo').innerText = message + "\npnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
         document.getElementById('a-2d-demo').innerText = message + "\n" + ctx_2d_demo.local_x.toString() + " " + ctx_2d_demo.local_y.toString();
         //writeMessage(canvas, message); 
@@ -211,9 +219,9 @@ canvas_2d_demo.addEventListener('mousemove', function(evt) {
 }, false);
 canvas_2d_demo.addEventListener('mouseup', function(evt) {
     dragStart = false;
-    var delta = {x: 0, y:0, v: true};
-    //socket.emit('2d-demo-pnt', delta);
-    sendPnt(delta);
+    // var delta = [0,0];
+    // //socket.emit('2d-demo-pnt', delta);
+    // sendPnt(delta);
 });
 
 canvas_2d_demo.addEventListener('touchstart', function(evt) {
@@ -223,12 +231,18 @@ canvas_2d_demo.addEventListener('touchstart', function(evt) {
 }, false);
 canvas_2d_demo.addEventListener('touchmove', function(evt) {
     if (dragStart) {
+        uploadValue = true;
+        update = true;
         var mousePos = {x: evt.changedTouches[0].pageX, y:evt.changedTouches[0].pageY}; 
         var delta = {x: (startPos.x - mousePos.x) * 3, y: (startPos.y - mousePos.y) * 3, v:false};
         var message = 'Touch position: ' + mousePos.x + ',' + mousePos.y;
         //console.log("Delta: " + delta.x + ', ' + delta.y);
         //socket.emit('2d-demo-pnt', delta);
-        sendPnt(delta);
+        //sendPnt(delta);
+        img_delta[0] += (startPos.x - mousePos.x) * 3;
+        img_delta[1] += (startPos.y - mousePos.y) * 3
+        img_goal[0] -= (startPos.x - mousePos.x) * 3;
+        img_goal[1] -= (startPos.y - mousePos.y) * 3;
         //document.getElementById('a-2d-demo').innerText = message + "\npnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
         document.getElementById('a-2d-demo').innerText = message + "\n" + ctx_2d_demo.local_x.toString() + " " + ctx_2d_demo.local_y.toString();
         //writeMessage(canvas, message); 
@@ -237,13 +251,19 @@ canvas_2d_demo.addEventListener('touchmove', function(evt) {
 }, false);
 canvas_2d_demo.addEventListener('touchend', function(evt) {
     dragStart = false;
-    var delta = {x: 0, y:0, v: true};
-    //socket.emit('2d-demo-pnt', delta);
-    sendPnt(delta);
+    // var delta = [0,0];w
+    // //socket.emit('2d-demo-pnt', delta);
+    // sendPnt(delta);
 }, false);
 
 
 // Sync 2d demo with timer
+
 function sync() {
-    
-}
+    if (uploadValue){
+        sendPnt(img_delta);
+        uploadValue = false;
+        img_delta = [0,0];
+    }
+};
+window.setInterval(sync, 50);
