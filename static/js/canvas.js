@@ -47,7 +47,8 @@ canvas_dragnnect.addEventListener('mouseup', function() {
     //data['pnts'] = pnts;
     data['11pnts'] = get11Pnts(pnts);
     //ctx_dragnnect.clearRect(0, 0, canvas_dragnnect.width, canvas_dragnnect.height);
-    socket.emit('device_update', data)
+    //socket.emit('device_update', data)
+    sendMsg({m:'device_update', data:data});
 }, false);
 
 canvas_dragnnect.addEventListener('touchstart', function(evt) {
@@ -77,7 +78,9 @@ canvas_dragnnect.addEventListener('touchend', function(evt) {
   if (tmp[0][0] != -1) {
     data['11pnts'] = tmp;
     data['delta'] = Date.now() - start_time;
-    socket.emit('device_update', data);
+    //socket.emit('device_update', data);
+    sendMsg({m:'device_update', data:data});
+
   }
   //ctx_dragnnect.clearRect(0, 0, canvas_dragnnect.width, canvas_dragnnect.height);
 }, false);
@@ -156,12 +159,19 @@ function coord_param_set() {
   ctx_dragnnect.fillText(dev_id, 20, 50);
 };
 
-socket.on('draw', function(data) {
+// socket.on('draw', function(data) {
+//   ctx_dragnnect.clearRect(0, 0, w*2, h*2);
+//   data_devs = data;
+//   coord_param_set();
+//   dragnnect2d_draw(data_devs);
+// });
+
+function drawArranged(data) {
   ctx_dragnnect.clearRect(0, 0, w*2, h*2);
   data_devs = data;
   coord_param_set();
   dragnnect2d_draw(data_devs);
-});
+}
 
 function dragnnect2d_draw(devs) {
     if (canvas_dragnnect.getContext) {

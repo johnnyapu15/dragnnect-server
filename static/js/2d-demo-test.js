@@ -28,42 +28,55 @@ function demo_init(data) {
     
 
 };
-socket.on('demo-init', function(data) {
-    //demo_init(data);
-    ctx_2d_demo.width = canvas_2d_demo.width;
-    ctx_2d_demo.height = canvas_2d_demo.height;
-    //alert(str(ctx_2d_demo.width) + str(ctx_2d_demo.height));
-});
-
-// Listening function
-socket.on('demo-receive', function(data) {
-    // data['pnt']: ctx data demonstrated by world-coordinates. (3d)
-    // Transform the pnt to local-coordinates.
-    drawDemo(data['pnt']);
-});
-
-var lineData;
-socket.on('demo-2d-line', function(data) {
-    lineData = data;
+function lineInit(line) {
+    lines_2d = line;
     canvas_2d_demo.width = div_2d_demo.clientWidth;
     canvas_2d_demo.height = div_2d_demo.clientHeight;
     ctx_2d_demo.width = canvas_2d_demo.width;
     ctx_2d_demo.height = canvas_2d_demo.height;
-    //console.log((ctx_2d_demo.width).toString() + (ctx_2d_demo.height).toString());
+};
 
-    // ctx_2d_demo.clearRect(ctx_2d_demo.local_x - 100, ctx_2d_demo.local_y - 100,
-    //     ctx_2d_demo.local_x + ctx_2d_demo.width + 100, ctx_2d_demo.local_y + ctx_2d_demo.height + 100);
-    //line_draw();
-    //draw();
-    //img_coord = [0,0];
-});
+function pntUpdate(pnt) {
+    img_delta[0] = pnt[0];
+    img_delta[1] = pnt[1];
+    update = true;
+};
+// socket.on('demo-init', function(data) {
+//     //demo_init(data);
+//     ctx_2d_demo.width = canvas_2d_demo.width;
+//     ctx_2d_demo.height = canvas_2d_demo.height;
+//     //alert(str(ctx_2d_demo.width) + str(ctx_2d_demo.height));
+// });
+
+// // Listening function
+// socket.on('demo-receive', function(data) {
+//     // data['pnt']: ctx data demonstrated by world-coordinates. (3d)
+//     // Transform the pnt to local-coordinates.
+//     drawDemo(data['pnt']);
+// });
+
+// var lineData;
+// socket.on('demo-2d-line', function(data) {
+//     lineData = data;
+//     canvas_2d_demo.width = div_2d_demo.clientWidth;
+//     canvas_2d_demo.height = div_2d_demo.clientHeight;
+//     ctx_2d_demo.width = canvas_2d_demo.width;
+//     ctx_2d_demo.height = canvas_2d_demo.height;
+//     //console.log((ctx_2d_demo.width).toString() + (ctx_2d_demo.height).toString());
+
+//     // ctx_2d_demo.clearRect(ctx_2d_demo.local_x - 100, ctx_2d_demo.local_y - 100,
+//     //     ctx_2d_demo.local_x + ctx_2d_demo.width + 100, ctx_2d_demo.local_y + ctx_2d_demo.height + 100);
+//     //line_draw();
+//     //draw();
+//     //img_coord = [0,0];
+// });
 
 function remap() {
     ctx_2d_demo.restore();
     ctx_2d_demo.clearRect(0, 0, ctx_2d_demo.width, ctx_2d_demo.height);
     ctx_2d_demo.save();
     translateMap();
-}
+};
 function line_draw() {
     lines_2d['lines'].forEach(l => {
         ctx_2d_demo.beginPath();
@@ -71,31 +84,28 @@ function line_draw() {
         ctx_2d_demo.lineTo(l[0], l[1]);
         ctx_2d_demo.stroke();
     });
-    lines_2d['dl'].forEach(l => {
-        ctx_2d_demo.beginPath();
-        ctx_2d_demo.moveTo(l[0], l[1]);
-    });
+
     for (var i = 0; i < lines_2d['dl'].length / 2;i+=2) {
         ctx_2d_demo.beginPath();
         ctx_2d_demo.moveTo(lines_2d['dl'][i][0], lines_2d['dl'][i][1]);
         ctx_2d_demo.lineTo(lines_2d['dl'][i+1][0], lines_2d['dl'][i+1][1]);
         ctx_2d_demo.stroke();
-    }
-}
-socket.on('2d-pnt-draw', function(data) {
-   lines_2d = lineData;
-   img_delta[0] = data[0];
-   img_delta[1] = data[1];
-   anim = data[2]; //true
-   update = true;
-});
+    };
+};
+// socket.on('2d-pnt-draw', function(data) {
+//    lines_2d = lineData;
+//    img_delta[0] = data[0];
+//    img_delta[1] = data[1];
+//    anim = data[2]; //true
+//    update = true;
+// });
 window.requestAnimationFrame(draw);
 // Rotate point with local origin. Return array(x, y).
 function rotatePnt(angle, pnt_x, pnt_y) {
     var x = Math.cos(angle) * pnt_x - Math.sin(angle) * pnt_y;
     var y = Math.sin(angle) * pnt_x + Math.cos(angle) * pnt_y;
     return [x, y];
-}
+};
 function transfromToLocal2d(pnt) {
     //pnt: 3d world-coord points array, y is height.
     // rotation
@@ -109,7 +119,7 @@ function transfromToLocal2d(pnt) {
 
     //rotation (WIth local origin)
     return ret
-}
+};
 
 function translateMap() {
     ctx_2d_demo.rotate(ctx_2d_demo.theta);
@@ -153,7 +163,7 @@ function draw() {
         else {
             img_coord[0] = an_f * img_coord[0] + (1 - an_f) * img_delta[0];
             img_coord[1] = an_f * img_coord[1] + (1 - an_f) * img_delta[1];            
-            update = false;
+            if (Math.abs(img_coord[0] - img_delta[0]) < 1) update = false;
         }
 
 
@@ -189,9 +199,10 @@ canvas_2d_demo.addEventListener('mousemove', function(evt) {
         var delta = {x: (startPos.x - mousePos.x) * 3, y: (startPos.y - mousePos.y)*3, v:false};
         var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
         //console.log("Delta: " + delta.x + ', ' + delta.y);
-        img_delta[0] -= delta.x;
-        img_delta[1] -= delta.y;
+        // img_delta[0] -= delta.x;
+        // img_delta[1] -= delta.y;
         //socket.emit('2d-demo-pnt', delta);
+        sendPnt(delta);
         //document.getElementById('a-2d-demo').innerText = message + "\npnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
         document.getElementById('a-2d-demo').innerText = message + "\n" + ctx_2d_demo.local_x.toString() + " " + ctx_2d_demo.local_y.toString();
         //writeMessage(canvas, message); 
@@ -201,7 +212,8 @@ canvas_2d_demo.addEventListener('mousemove', function(evt) {
 canvas_2d_demo.addEventListener('mouseup', function(evt) {
     dragStart = false;
     var delta = {x: 0, y:0, v: true};
-    socket.emit('2d-demo-pnt', delta);
+    //socket.emit('2d-demo-pnt', delta);
+    sendPnt(delta);
 });
 
 canvas_2d_demo.addEventListener('touchstart', function(evt) {
@@ -215,7 +227,8 @@ canvas_2d_demo.addEventListener('touchmove', function(evt) {
         var delta = {x: (startPos.x - mousePos.x) * 3, y: (startPos.y - mousePos.y) * 3, v:false};
         var message = 'Touch position: ' + mousePos.x + ',' + mousePos.y;
         //console.log("Delta: " + delta.x + ', ' + delta.y);
-        socket.emit('2d-demo-pnt', delta);
+        //socket.emit('2d-demo-pnt', delta);
+        sendPnt(delta);
         //document.getElementById('a-2d-demo').innerText = message + "\npnt: (" + tr[0].toString() + ", " + tr[1].toString() + ")";
         document.getElementById('a-2d-demo').innerText = message + "\n" + ctx_2d_demo.local_x.toString() + " " + ctx_2d_demo.local_y.toString();
         //writeMessage(canvas, message); 
@@ -225,7 +238,8 @@ canvas_2d_demo.addEventListener('touchmove', function(evt) {
 canvas_2d_demo.addEventListener('touchend', function(evt) {
     dragStart = false;
     var delta = {x: 0, y:0, v: true};
-    socket.emit('2d-demo-pnt', delta);
+    //socket.emit('2d-demo-pnt', delta);
+    sendPnt(delta);
 }, false);
 
 

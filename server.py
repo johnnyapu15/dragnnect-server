@@ -58,7 +58,7 @@ def room_func(id):
         return render_template("roomDoor.html")
 
 @socketio.on('join')
-def join_room(data):
+def join_room():
     id = session['room_id']
     sid = str(request.sid)
     id_str = str(id)
