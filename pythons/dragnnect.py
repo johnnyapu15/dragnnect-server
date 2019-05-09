@@ -175,31 +175,31 @@ def setUsingLines2(_devs, _lines):
             ret['pos'].getRotated2d(_devs[_lines[i].device_index].rot.z) + _devs[_lines[i].device_index].pos
         _devs[_lines[i + 1].device_index].rot = \
             ret['rot'] + _devs[_lines[i].device_index].rot
-s1 = Point(3, 3)
-e1 = Point(3, 6) # dis = 3
-l1 = LineData(0)
-l1.set(s1, e1, 3, 3) # 0.5 second
+# s1 = Point(3, 3)
+# e1 = Point(3, 6) # dis = 3
+# l1 = LineData(0)
+# l1.set(s1, e1, 3, 3) # 0.5 second
 
-s2 = Point(3, 3)
-e2 = Point(6, 3) # degree with dev 1 = 90`
-l2 = LineData(1)
-l2.set(s2, e2, 3, 6)
-l = []
-l.append(l1)
-l.append(l2)
+# s2 = Point(3, 3)
+# e2 = Point(6, 3) # degree with dev 1 = 90`
+# l2 = LineData(1)
+# l2.set(s2, e2, 3, 6)
+# l = []
+# l.append(l1)
+# l.append(l2)
 
-d1 = DeviceArrangement(1)
-d1.setDeviceSize(5, 6)
-d2 = DeviceArrangement(2)
-d2.setDeviceSize(10, 7)
-d = []
-d.append(d1)
-d.append(d2)
-setUsingLines(d, l)
+# d1 = DeviceArrangement(1)
+# d1.setDeviceSize(5, 6)
+# d2 = DeviceArrangement(2)
+# d2.setDeviceSize(10, 7)
+# d = []
+# d.append(d1)
+# d.append(d2)
+# setUsingLines(d, l)
 
-print(d1)
-print(d2)
-arr1 = d1.get2dPoints()
-print(arr1)
-arr2 = d2.get2dPoints()
-print(arr2)
+# print(d1)
+# print(d2)
+# arr1 = d1.get2dPoints()
+# print(arr1)
+# arr2 = d2.get2dPoints()
+# print(arr2)
