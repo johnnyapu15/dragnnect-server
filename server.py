@@ -5,7 +5,9 @@ import logging
 import flask_socketio as si
 from datetime import datetime
 
-from pythons.dragnnect import *
+#import pythons.dragnnect-exp as dragnnectExp 
+from pythons.dragnnect_exp import *
+# from pythons.dragnnect import *
 from pythons.fileio import *
 
 app = Flask(__name__)
@@ -36,7 +38,7 @@ def roomInit():
         room[id_str]['count'] = 0
         room[id_str]['lines'] = []
     room[id_str]['count'] += 1
-    session['device_id'] = room[id_str]['sequence']
+    session['device_id'] = str(room[id_str]['sequence'])
     room[id_str]['sequence'] += 1
     dev_id = session['device_id']
     room[id_str]['devices'][dev_id] = DeviceArrangement(dev_id)
@@ -49,7 +51,7 @@ def room_func(id):
     id_str = str(id)
     if 'device_id' in session.keys():
         # 이전에 접속한 기기가 재접속할 경우
-        idx = list(room[id_str]['devices'].keys()).index(session['device_id'])
+        idx = str(list(room[id_str]['devices'].keys()).index(session['device_id']))
         session['device_id'] = idx
         return render_template("canvas.html", count = str(room[id_str]['count']), room_id = id_str, idx = session['device_id'])
     else:
@@ -150,6 +152,7 @@ def kill_room():
     #del room_lines[session['room_id']]
     del room[id]['lines']
     del room[id]['sequence']
+    del room[id]
     print("room killed.")
 def devLineToData(_meta, _devs, _lines):
     ret = []
@@ -165,19 +168,25 @@ def devLineToData(_meta, _devs, _lines):
                 'subject': _meta[1],
                 'line_num': (i / 2),
                 'first':{
+                    'dev_index': _lines[i].device_index,
                     'dev_info':     _devs[_lines[i].device_index].device_name,
+                    'width': _devs[_lines[i].device_index].width,
+                    'height': _devs[_lines[i].device_index].height,
                     'timestamp':    _lines[i].timestamp,
                     'lines':        _lines[i].lines
                 },
                 'second':{
+                    'dev_index': _lines[i+1].device_index,
                     'dev_info':    _devs[_lines[i+1].device_index].device_name,
+                    'width': _devs[_lines[i+1].device_index].width,
+                    'height': _devs[_lines[i+1].device_index].height,
                     'timestamp':   _lines[i+1].timestamp,
                     'lines':       _lines[i+1].lines
                 }
             }
         )
     return ret
-@socketio.on('device_update')
+# @socketio.on('device_update')
 def dev_update(data):
     print(session['device_id'])
     print(room)
@@ -193,8 +202,7 @@ def dev_update(data):
     #s0 /= dpv
     #e0 /= dpv
     l0 = LineData(dev_id)
-    (dt, micro) = datetime.utcnow().strftime('%Y%m%d%H%M%S.%f').split('.')
-    l0.set(s0, e0, pnts[-1][2] - pnts[0][2], int("%s%03d" % (dt, int(micro) / 1000)))
+    l0.set(s0, e0, pnts[-1][2] - pnts[0][2], data['start_time'])
     l0.lines = pnts
     room[room_id]['devices'][dev_id].setDeviceSize(data['width'], data['height'])
     room[room_id]['devices'][dev_id].device_name = session['dev_info']
@@ -206,9 +214,6 @@ def dev_update(data):
     ret = dict()
     #if 2 * count - 2 <= len(room_lines[room_id]):
     if 2 * count - 2 <= len(room[room_id]['lines']):
-        # TODO: Save lines!
-        # Env#_User#_Timestamp_dev1_dev2.txt
-        #room_lines[room_id] = room_lines[room_id][0:(2*count - 2)]
         room[room_id]['lines'] = room[room_id]['lines'][0:(2*count-2)]
         # Init
         for key, dev in room[room_id]['devices'].items():
@@ -251,6 +256,70 @@ def dev_update(data):
                 dev.setDeviceSize(0, 0)
         room[room_id]['lines'] = []
         return
+
+@socketio.on('device_update')
+def dev_update2(data):
+    print(session['device_id'])
+    print(room)
+    room_id = session['room_id']
+    count = room[room_id]['count']
+    dev_id = str(session['device_id'])
+    pnts = data['11pnts']
+    l0 = LineData(dev_id)
+    l0.set(pnts, data['start_time'])
+    room[room_id]['devices'][dev_id].setDeviceSize(data['width'], data['height'])
+    room[room_id]['devices'][dev_id].device_name = session['dev_info']
+    room[room_id]['lines'].append(l0)
+
+    ret = dict()
+    if 2 * count - 2 <= len(room[room_id]['lines']):
+        room[room_id]['lines'] = room[room_id]['lines'][0:(2*count-2)]
+        # Init
+        for key, dev in room[room_id]['devices'].items():
+            dev.init()
+        LD = devLineToData(
+            [
+                room[room_id]['expNum'],
+                room_id
+            ], 
+            room[room_id]['devices'], room[room_id]['lines']
+        )
+        saveLine(LD)
+        for i, l in enumerate(LD):
+            l['first']['lines'] = np.array(l['first']['lines'])
+            l['second']['lines'] = np.array(l['second']['lines'])
+        # Calculate
+        for i, l in enumerate(LD):
+            print(l)
+            i0 = str(l['first']['dev_index'])
+            i1 = str(l['second']['dev_index'])
+            output = heuristic_basic(l)
+            room[room_id]['devices'][i0].link(
+                room[room_id]['devices'][i1],
+                output
+            )
+        for key, dev in room[room_id]['devices'].items():
+            ret[str(dev.device_id)] = \
+                [dev.get2dPoints(), dev.alpha, dev.rot[1]]
+        print("drawing...")
+        print(LD)
+        print(ret)
+        print(room[room_id]['devices'])
+        si.emit('draw', ret, room=room_id)
+        # Reset
+        for key, dev in room[room_id]['devices'].items():
+            dev.setDeviceSize(0, 0)
+        room[room_id]['lines'] = []
+    elif 2 * count - 2 > len(room[room_id]['lines']):
+        # Listening,,,
+        return
+    else:
+        # TODO: draw or reset
+        for key, dev in room[room_id]['devices'].items():
+            dev.setDeviceSize(0, 0)
+        room[room_id]['lines'] = []
+        return
+
 @socketio.on('2d-demo')
 def demo_2d():
     data = dict()

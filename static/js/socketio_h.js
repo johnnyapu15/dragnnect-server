@@ -49,7 +49,7 @@ socket_worker.onmessage = function(e) {
         case "ntpDelta":
             if (ntpCount == 0) {
                 ntpDelta /= 10;
-                flash("NTP: " + ntpDelta);
+                flash("Time sync: " + ntpDelta);
                 ntping = true;
                 clocking();
             } else {

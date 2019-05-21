@@ -29,16 +29,18 @@ function drawing_param_set() {
 
 function getTime() {
   t = new Date();
-  return Math.floor(t.getTime()) + t.getTimezoneOffset()*60000;
+  return Math.floor(t.getTime()) + t.getTimezoneOffset()*60000 - ntpDelta;
 }
 canvas_dragnnect.addEventListener('mousedown', function(e) {
+    start_time = getTime();
     ctx_dragnnect.beginPath();
     drawing_param_set();
     ctx_dragnnect.moveTo(mouse.x, mouse.y);
     getData();
     data['start_x'] = mouse.x;
     data['start_y'] = mouse.y;
-    start_time = getTime();
+    data['start_time'] = start_time;
+    pnts.push([mouse.x, mouse.y, 0]);
     canvas_dragnnect.addEventListener('mousemove', onPaint, false);
 }, false);
  
@@ -60,6 +62,7 @@ canvas_dragnnect.addEventListener('mouseup', function() {
 }, false);
 
 canvas_dragnnect.addEventListener('touchstart', function(evt) {
+  start_time = getTime();
   drawing_param_set();
   evt.preventDefault();
   ctx_dragnnect.beginPath();
@@ -69,7 +72,8 @@ canvas_dragnnect.addEventListener('touchstart', function(evt) {
   getData();
   data['start_x'] = touches.x;
   data['start_y'] = touches.y;
-  start_time = getTime();
+  data['start_time'] = start_time;
+  pnts.push([touches.x, touches.y, 0]);
   canvas_dragnnect.addEventListener('touchmove', onTouchPaint, false);
 }, false);
 

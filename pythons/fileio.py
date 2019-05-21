@@ -37,9 +37,9 @@ tmp.close()
 def saveLine(data):
     global exp_seq
     for i, d in enumerate(data):
-        fn = str(exp_seq) + "-" + str(d['env']) + "-" + str(d['subject'] + "-" + str(d['line_num']) + ".json")
+        fn = str(exp_seq) + "-" + str(d['env']) + "-" + str(d['subject']) + "-" + str(int(d['line_num'])) + ".json"
         ret = open(exp_path + fn, "w")
-        ret.write(json.dumps(data, ensure_ascii=False, indent="\t"))
+        ret.write(json.dumps(d, ensure_ascii=False, indent="\t"))
         ret.close()
         exp_seq += 1
     tmp = open(exp_path + "meta.txt", "w+")

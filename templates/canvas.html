@@ -226,7 +226,7 @@
     function clocking() {
       setInterval(function () {
         if (ntping) {
-          ntpWindow.innerHTML = Date.now() - ntpDelta + "<br>" + ntpDelta;
+          ntpWindow.innerHTML = getTime() + "<br>" + ntpDelta;
         }
       }, 100)
     }
