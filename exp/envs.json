@@ -1,0 +1,17 @@
+{
+    "default": {
+        "alpha": 1,
+        "theta": 0,
+        "vo": [1000, 10]
+        },
+    "testenv1" : {
+        "alpha": 1,
+        "theta": 0,
+        "vo": [503, 0]
+    },
+    "testenv2": {
+        "alpha": 1,
+        "theta": 0,
+        "vo": [968, 0]
+    }
+}
