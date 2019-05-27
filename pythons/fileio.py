@@ -33,12 +33,13 @@ tmp = open(exp_path + "meta.txt", "r")
 exp_seq = int(tmp.read())
 print("the present exp_seq: " + str(exp_seq))
 tmp.close()
+save_path = exp_path + "data/"
 # save new device-line data
 def saveLine(data):
     global exp_seq
     for i, d in enumerate(data):
-        fn = str(exp_seq) + "-" + str(d['env']) + "-" + str(d['subject']) + "-" + str(int(d['line_num'])) + ".json"
-        ret = open(exp_path + fn, "w")
+        fn = str(exp_seq) + "-" + str(d['env']) + "-" + str(int(d['line_num'])) + "-" + str(d['subject']) + ".json"
+        ret = open(save_path + fn, "w")
         ret.write(json.dumps(d, ensure_ascii=False, indent="\t"))
         ret.close()
         exp_seq += 1

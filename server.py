@@ -166,7 +166,7 @@ def devLineToData(_meta, _devs, _lines):
             {
                 'env': _meta[0],
                 'subject': _meta[1],
-                'line_num': (i / 2),
+                'line_num': int(i / 2),
                 'first':{
                     'dev_index': _lines[i].device_index,
                     'dev_info':     _devs[_lines[i].device_index].device_name,
@@ -187,75 +187,75 @@ def devLineToData(_meta, _devs, _lines):
         )
     return ret
 # @socketio.on('device_update')
-def dev_update(data):
-    print(session['device_id'])
-    print(room)
-    #dpmm = data['dpi_x'] / 25.4
-    #dpv = dpmm / 5
-    #print("DPI: " + str(data['dpi_x']) + " ... dpmm: " + str(dpmm))
-    room_id = session['room_id']
-    count = room[room_id]['count']
-    dev_id = int(session['device_id'])
-    pnts = data['11pnts']
-    s0 = Point(pnts[0][0], pnts[0][1])
-    e0 = Point(pnts[-1][0], pnts[-1][1])
-    #s0 /= dpv
-    #e0 /= dpv
-    l0 = LineData(dev_id)
-    l0.set(s0, e0, pnts[-1][2] - pnts[0][2], data['start_time'])
-    l0.lines = pnts
-    room[room_id]['devices'][dev_id].setDeviceSize(data['width'], data['height'])
-    room[room_id]['devices'][dev_id].device_name = session['dev_info']
-    #room[room_id][dev_id].setDeviceSize(data['width'] / dpv, data['height'] / dpv)
+# def dev_update(data):
+#     print(session['device_id'])
+#     print(room)
+#     #dpmm = data['dpi_x'] / 25.4
+#     #dpv = dpmm / 5
+#     #print("DPI: " + str(data['dpi_x']) + " ... dpmm: " + str(dpmm))
+#     room_id = session['room_id']
+#     count = room[room_id]['count']
+#     dev_id = int(session['device_id'])
+#     pnts = data['11pnts']
+#     s0 = Point(pnts[0][0], pnts[0][1])
+#     e0 = Point(pnts[-1][0], pnts[-1][1])
+#     #s0 /= dpv
+#     #e0 /= dpv
+#     l0 = LineData(dev_id)
+#     l0.set(s0, e0, pnts[-1][2] - pnts[0][2], data['start_time'])
+#     l0.lines = pnts
+#     room[room_id]['devices'][dev_id].setDeviceSize(data['width'], data['height'])
+#     room[room_id]['devices'][dev_id].device_name = session['dev_info']
+#     #room[room_id][dev_id].setDeviceSize(data['width'] / dpv, data['height'] / dpv)
 
-    #room_lines[room_id].append(l0)
-    room[room_id]['lines'].append(l0)
+#     #room_lines[room_id].append(l0)
+#     room[room_id]['lines'].append(l0)
 
-    ret = dict()
-    #if 2 * count - 2 <= len(room_lines[room_id]):
-    if 2 * count - 2 <= len(room[room_id]['lines']):
-        room[room_id]['lines'] = room[room_id]['lines'][0:(2*count-2)]
-        # Init
-        for key, dev in room[room_id]['devices'].items():
-            if (key!='2d_demo'):
-                dev.rot = Vector3()
-                dev.pos.x = 0
-                dev.pos.z = 0
-                dev.alpha = 1
-        LD = devLineToData([
-                room[room_id]['expNum'],
-                room_id
-            ], 
-            room[room_id]['devices'], room[room_id]['lines'])
-        saveLine(LD)
-        # Calculate
-        #setUsingLines(room[room_id], room_lines[room_id])
-        #setUsingLines2(room[room_id]['devices'], room_lines[room_id])
-        setUsingLines2(room[room_id]['devices'], room[room_id]['lines'])
-        for key, dev in room[room_id]['devices'].items():
-            if (key!='2d_demo'):
-                ret[str(dev.device_id)] = \
-                    [dev.get2dPoints(), dev.alpha, dev.rot.z]
-        print("drawing...")
-        print(LD)
-        print(ret)
-        si.emit('draw', ret, room=room_id)
-        # Reset
-        for key, dev in room[room_id]['devices'].items():
-            if (key!='2d_demo'):
-                dev.setDeviceSize(0, 0)
-        #room_lines[room_id] = []
-        room[room_id]['lines'] = []
-    elif 2 * count - 2 > len(room[room_id]['lines']):
-        # Listening,,,
-        return
-    else:
-        # TODO: draw or reset
-        for key, dev in room[room_id]['devices'].items():
-            if (key!='2d_demo'):
-                dev.setDeviceSize(0, 0)
-        room[room_id]['lines'] = []
-        return
+#     ret = dict()
+#     #if 2 * count - 2 <= len(room_lines[room_id]):
+#     if 2 * count - 2 <= len(room[room_id]['lines']):
+#         room[room_id]['lines'] = room[room_id]['lines'][0:(2*count-2)]
+#         # Init
+#         for key, dev in room[room_id]['devices'].items():
+#             if (key!='2d_demo'):
+#                 dev.rot = Vector3()
+#                 dev.pos.x = 0
+#                 dev.pos.z = 0
+#                 dev.alpha = 1
+#         LD = devLineToData([
+#                 room[room_id]['expNum'],
+#                 room_id
+#             ], 
+#             room[room_id]['devices'], room[room_id]['lines'])
+#         saveLine(LD)
+#         # Calculate
+#         #setUsingLines(room[room_id], room_lines[room_id])
+#         #setUsingLines2(room[room_id]['devices'], room_lines[room_id])
+#         setUsingLines2(room[room_id]['devices'], room[room_id]['lines'])
+#         for key, dev in room[room_id]['devices'].items():
+#             if (key!='2d_demo'):
+#                 ret[str(dev.device_id)] = \
+#                     [dev.get2dPoints(), dev.alpha, dev.rot.z]
+#         print("drawing...")
+#         print(LD)
+#         print(ret)
+#         si.emit('draw', ret, room=room_id)
+#         # Reset
+#         for key, dev in room[room_id]['devices'].items():
+#             if (key!='2d_demo'):
+#                 dev.setDeviceSize(0, 0)
+#         #room_lines[room_id] = []
+#         room[room_id]['lines'] = []
+#     elif 2 * count - 2 > len(room[room_id]['lines']):
+#         # Listening,,,
+#         return
+#     else:
+#         # TODO: draw or reset
+#         for key, dev in room[room_id]['devices'].items():
+#             if (key!='2d_demo'):
+#                 dev.setDeviceSize(0, 0)
+#         room[room_id]['lines'] = []
+#         return
 
 @socketio.on('device_update')
 def dev_update2(data):
@@ -355,20 +355,3 @@ if __name__ == '__main__':
     app.config['DEBUG'] = True
     #app.run(host='0.0.0.0')
     socketio.run(app, host='0.0.0.0')
-
-
-
-# def quit_callback():
-#     #id = str(data['data']['id'])
-#     print("wwww")
-#     # id = str(request.json['id'])
-#     # idx = str(request.json['count'])
-#     #print(id)
-#     print(si.rooms())
-#     sid = request.sid
-#     id = room[request.sid]
-#     #sid = str(request.json['sid'])
-#     room[id].remove(sid)
-#     si.leave_room(id)
-#     print("Quiting..." + id)
-#     return str(request.json)
