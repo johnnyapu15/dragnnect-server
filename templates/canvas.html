@@ -1,5 +1,4 @@
 
-<!DOCTYPE HTML>
 <!-- <html style="height: 100%"> -->
   <html>
   <title>Dragnnect-client</title>
@@ -27,7 +26,7 @@
     }
     //openFullscreen();
     var count = {{ count }};
-    var room_id = {{ room_id }};
+    var room_id = "{{ room_id }}";
     var dev_id = {{ idx }};
     var data = {};
 
@@ -39,7 +38,6 @@
     </style>
   </head>
   <body>
-    
     <div class="topnav" id="menu">
       <a class="tablinks" id="tab-1" onClick="leave()">Home</a>
       <a class="tablinks show" id="tab-2" onClick="openTab(event, 'content-2')">Canvas</a>
@@ -49,7 +47,8 @@
         <div class="dropdown-content" id="drop-menu">
           <a id="tab-4" onClick="openTab(event, 'content-4')">Reset</a>
           <a id="tab-5" onClick="openTab(event, 'content-5')">exp</a>
-        
+          <a id="tab-6" onClick="openTab(event, 'content-6')">kill room</a>
+          <a id="tab-7" onClick="openTab(event, 'content-7')">NTP</a>
         </div>
       </div>
     </div>
@@ -80,19 +79,45 @@
       <div id="content-4" class="tabcontent">
         
       </div>
-      <div id="content-5" class="tabcontent">
-        
+      <div id="content-7" class="tabcontent">
+        <!-- NTP window -->
+        <div id="ntp" class="ntp">
+          </div>
+      
       </div>
     
-    
+      <div id = "modalWindow" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;
+          </span>
+          insert exp-type
+            <input id = "exp-type" onchange="modalInput=this.value;">
+        </div>
+      </div>
+
+      <div id = "flash-div">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class = flashes id = "flash">
+            {% for message in messages %}
+            <li> {{ message }}</li>
+            {% endfor %}
+        </ul>
+        
+        {% endif %}
+        {% endwith %}
+      </div>>
+    <!-- JS IN BODY -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/socketio_h.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/dragnnect2d.js') }}"></script> -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/2d-demo-test.js') }}"></script>
     <script type="text/javascript" charset="utf-8">
       document.getElementById("textarea").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;
       data['id'] = room_id;
-
+      var ntpWindow = document.getElementById("ntp");
+      var ntping = false;
       var head = document.getElementsByTagName('body')[0];
       function openMenu() {
         document.getElementById("drop-menu").classList.toggle("show");
@@ -112,22 +137,8 @@
       function openTab(evt, _id){
         var i, tabcontent, tablinks;
         i = 0;
+        ntping = false;
         
-        if (i == 1) return;
-        tabcontent = document.getElementsByClassName("tabcontent");
-        
-        for (i = 0; i < tabcontent.length; i++) {
-          tabcontent[i].style.display = "none";
-        }
-
-        tablinks = document.getElementsByClassName("tablinks")
-        for (i = 0; i < tablinks.length; i++) {
-          tablinks[i].className = tablinks[i].className.replace(" show", "");
-        }
-        document.getElementById(_id).style.display = "block";
-        evt.currentTarget.className += " show";
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
         switch (_id) {
           case "content-1":
 
@@ -149,16 +160,78 @@
             i = 1;
             break;
           case "content-5": 
+          // experiment button
+            modalOpen();
+            i = 1;
+            break;
+          case "content-6":
+            sendMsg({
+              m:'kill_room'
+            });
+            i = 1;
+            break;
+          case "content-7":
+            ntpCount = 10;
+            ntpStart();
+            
+            // i = 1;
             break;
         }
+        if (i == 1) return;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        
+        for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+
+        tablinks = document.getElementsByClassName("tablinks")
+        for (i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" show", "");
+        }
+        document.getElementById(_id).style.display = "block";
+        evt.currentTarget.className += " show";
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
 
       }
     function leave() {
       sendMsg({
         m: 'leave'
-      })
+      });
+    }
+    function room_killed(){
+      window.location = "http://" + document.domain + ':' + location.port;
+      return false;
+    }
+
+    document.getElementById("flash-div").onchange =
+      setTimeout(function() {
+        c = document.getElementById("flash-div").children;
+        for (i = 0; i < c.length; i++) {
+          c[i].innerHTML = "";
+        }
+        document.getElementById("flash-div").innerHTML = "";
+      }, 1500);
+
+    function flash(data){
+      document.getElementById("flash-div").innerHTML = "\
+           <ul class = flashes id = 'flash'>\
+            <li>" + data + "</li> \
+        </ul>";
+      setTimeout(function() {
+        document.getElementById("flash-div").innerHTML = "";
+      }, 1500);
+    }
+
+    function clocking() {
+      setInterval(function () {
+        if (ntping) {
+          ntpWindow.innerHTML = getTime() + "<br>" + ntpDelta;
+        }
+      }, 100)
     }
     </script>
   
   </body>
 </html>            
+

@@ -1,6 +1,7 @@
 //<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 importScripts("//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js");
 var socket;
+var ntpDeltaSum = 0;
       
 function init() {
     socket.on('update', function(data) {
@@ -14,7 +15,8 @@ function init() {
     });
     socket.on('ntp_0', function() {
         //t1 = Date.now();
-        socket.emit('ntp_1', Date.now());
+        t = new Date();
+        socket.emit('ntp_1', Math.floor(t.getTime()) + t.getTimezoneOffset()*60000);
     });
 
     socket.on('draw', function(data) {
@@ -23,6 +25,24 @@ function init() {
             data:data
         });
     });
+    socket.on('room_kill', function(data) {
+        postMessage({
+            m:"room_kill"
+        })
+    });
+    socket.on('flash', function(data) {
+        postMessage({
+            m:'flash',
+            data:data
+        })
+    });
+    socket.on('ntp_delta', function(data) {
+        ntpDeltaSum = data;
+        postMessage({
+            m: "ntpDelta",
+            data:ntpDeltaSum
+        });
+    })
 
 
     //////////////2d demo ///////////////////////////////////
@@ -67,7 +87,9 @@ function init() {
 //});
 
 
-
+function sleep (time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  }
 // ex: e = {emit: true, m: 'connect', data:'123123'}
 onmessage = function(e) {
     var t = e.data['init'];
@@ -81,6 +103,9 @@ onmessage = function(e) {
     } else if (e.data["init"]) {
         socket = io.connect(e.data["data"]);
         init();
+    } else if (e.data["ntp"]) {
+        socket.emit("ntp_start");
+        
     }
     // } else {
     //     switch (e.m) {

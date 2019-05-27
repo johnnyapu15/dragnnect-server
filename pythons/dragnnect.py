@@ -77,6 +77,7 @@ class LineData:
         self.timestamp = 0 #server timestamp
         self.startPoint = Point(0, 0)
         self.endPoint = Point(0, 0)
+        self.lines = []
     def set(self, startPoint, endPoint, timeDelta, timestamp):
         self.startPoint = startPoint
         self.endPoint = endPoint
@@ -84,6 +85,7 @@ class LineData:
         self.timestamp = timestamp
 class DeviceArrangement:
     def __init__(self, _id):
+        self.device_name = ""
         self.device_id = _id
         self.pos = Vector3()
         self.up = Vector3() # Up vector of device
@@ -141,6 +143,9 @@ def calcUsingLines(_pre_line, _next_line):
     return ret #return Point object of 'next' device.
 
 def getScalefactor(_pre_line, _next_line):
+    if (_pre_line.timeDelta == 0):
+        print("ERROR: timeDelta is zero.")
+        _pre_line.timeDelta = 1
     v1 = Point.getDistance(_pre_line.startPoint, _pre_line.endPoint) / _pre_line.timeDelta
     r = (v1 * _next_line.timeDelta) / Point.getDistance(_next_line.startPoint, _next_line.endPoint)
     return r

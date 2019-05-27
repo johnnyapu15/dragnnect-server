@@ -27,15 +27,20 @@ function drawing_param_set() {
   ctx_dragnnect.strokeStyle = '#5A6068';
 }
 
-
+function getTime() {
+  t = new Date();
+  return Math.floor(t.getTime()) + t.getTimezoneOffset()*60000 - ntpDelta;
+}
 canvas_dragnnect.addEventListener('mousedown', function(e) {
+    start_time = getTime();
     ctx_dragnnect.beginPath();
     drawing_param_set();
     ctx_dragnnect.moveTo(mouse.x, mouse.y);
     getData();
     data['start_x'] = mouse.x;
     data['start_y'] = mouse.y;
-    start_time = Date.now();
+    data['start_time'] = start_time;
+    pnts.push([mouse.x, mouse.y, 0]);
     canvas_dragnnect.addEventListener('mousemove', onPaint, false);
 }, false);
  
@@ -43,15 +48,21 @@ canvas_dragnnect.addEventListener('mouseup', function() {
     canvas_dragnnect.removeEventListener('mousemove', onPaint, false);
     data['end_x'] = mouse.x;
     data['end_y'] = mouse.y;
-    data['delta'] = Date.now() - start_time;
     //data['pnts'] = pnts;
-    data['11pnts'] = get11Pnts(pnts);
+    tmp = get11Pnts(pnts);
     //ctx_dragnnect.clearRect(0, 0, canvas_dragnnect.width, canvas_dragnnect.height);
     //socket.emit('device_update', data)
-    sendMsg({m:'device_update', data:data});
+    if (tmp[0][0] != -1) {
+      data['11pnts'] = tmp;
+      data['delta'] = getTime() - start_time;
+      //socket.emit('device_update', data);
+      sendMsg({m:'device_update', data:data});
+  
+    }
 }, false);
 
 canvas_dragnnect.addEventListener('touchstart', function(evt) {
+  start_time = getTime();
   drawing_param_set();
   evt.preventDefault();
   ctx_dragnnect.beginPath();
@@ -61,7 +72,8 @@ canvas_dragnnect.addEventListener('touchstart', function(evt) {
   getData();
   data['start_x'] = touches.x;
   data['start_y'] = touches.y;
-  start_time = Date.now();
+  data['start_time'] = start_time;
+  pnts.push([touches.x, touches.y, 0]);
   canvas_dragnnect.addEventListener('touchmove', onTouchPaint, false);
 }, false);
 
@@ -77,7 +89,7 @@ canvas_dragnnect.addEventListener('touchend', function(evt) {
   tmp = get11Pnts(pnts);
   if (tmp[0][0] != -1) {
     data['11pnts'] = tmp;
-    data['delta'] = Date.now() - start_time;
+    data['delta'] = getTime() - start_time;
     //socket.emit('device_update', data);
     sendMsg({m:'device_update', data:data});
 
@@ -90,7 +102,7 @@ var onTouchPaint = function(evt) {
   touches.x = evt.changedTouches[0].pageX;
   touches.y = evt.changedTouches[0].pageY - rect.top;
   ctx_dragnnect.lineTo(touches.x, touches.y);
-  pnts.push([touches.x, touches.y, Date.now()-start_time]);
+  pnts.push([touches.x, touches.y, getTime() - start_time]);
   ctx_dragnnect.stroke();
 };
 
@@ -107,7 +119,7 @@ function getData() {
  
 var onPaint = function() {
     ctx_dragnnect.lineTo(mouse.x, mouse.y);
-    pnts.push([mouse.x, mouse.y, Date.now()-start_time]);
+    pnts.push([mouse.x, mouse.y, getTime() - start_time]);
     ctx_dragnnect.stroke();
 };
 

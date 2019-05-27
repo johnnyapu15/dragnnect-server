@@ -1,9 +1,12 @@
 //var socket_worker = new Worker("{{ url_for('static', filename='js/socketio_w.js') }}");
 var socket_worker = new Worker('http://' + document.domain + ':' + location.port + "/static/js/socketio_w.js");
+var ntpDelta = 0;
+var ntpCount = 0;
 socket_worker.postMessage({
     init:true,
     data: 'http://' + document.domain + ':' + location.port
 });
+
 // socket_worker.postMessage(
 //     {emit: true, m:update, ... }
 // );
@@ -36,6 +39,30 @@ socket_worker.onmessage = function(e) {
             break;
         case "drawArranged":
             drawArranged(e.data["data"]);
+            break;
+        case "room_kill":
+            room_killed();
+            break;
+        case "flash":
+            flash(e.data["data"]);
+            break;
+        case "ntpDelta":
+            if (ntpCount == 0) {
+                ntpDelta /= 10;
+                flash("Time sync: " + ntpDelta);
+                ntping = true;
+                clocking();
+            } else {
+                if (ntpCount > 0) {
+                    ntpDelta += e.data["data"];
+                    flash("NTPing: " + ntpDelta);
+                    ntpCount -= 1;
+                    ntpStart();
+                }
+                else {
+                    ntpCount = 0;
+                }
+            }
             break;
     };
 };
@@ -89,5 +116,12 @@ function sendPnt(data) {
         emit:true,
         m: '2d-demo-pnt',
         data:data
+    });
+}
+
+// ntp
+function ntpStart() {
+    socket_worker.postMessage({
+        ntp:true
     });
 }

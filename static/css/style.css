@@ -176,3 +176,57 @@ table{
   }
 
   .show {display:block;}
+
+  .flashes {
+    z-index: 1;
+    position: absolute;
+    border-radius: 5px;
+    background-color: rgba(240, 255, 255, 0.7);
+    margin-left: 20px;
+    padding-right: 20px;
+    margin-top:100px;
+    padding-left: 20px;
+  }
+
+  /* modal css */
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0, 0.4);
+  }
+  .modal-content {
+    background-color: paleturquoise;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+
+  .ntp {
+    border:1px solid #dedede; 
+    color:#666;
+    font-size:20px; 
+    text-align:center;
+  }
