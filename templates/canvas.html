@@ -199,6 +199,8 @@
         m: 'leave'
       });
     }
+    ntpCount = 10;
+    ntpStart();
     function room_killed(){
       window.location = "http://" + document.domain + ':' + location.port;
       return false;
