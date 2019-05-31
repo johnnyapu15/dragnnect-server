@@ -113,7 +113,7 @@ def callback():
 
 @app.route('/test')
 def testsite():
-    return render_template("test.html")
+    return render_template("maps.html")
 
 
 @socketio.on('ntp_start')
@@ -337,8 +337,8 @@ def demo_2d():
 @socketio.on('2d-demo-pnt')
 def demo_2d_pnt(data):
     id_str = str(session['room_id'])
-    room[id_str]['2d_demo'][0] -= data[0]
-    room[id_str]['2d_demo'][1] -= data[1]
+    room[id_str]['2d_demo'][0] = data[0]
+    room[id_str]['2d_demo'][1] = data[1]
     print("pnt demo..." + str(room[id_str]['2d_demo']))
     si.emit('2d-pnt-draw', room[id_str]['2d_demo'], room=session['room_id'], include_self=False)
     #si.broadcast.to(session['room_id']).emit('2d-pnt-draw', room[id_str]['2d_demo'])

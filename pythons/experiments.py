@@ -80,7 +80,6 @@ def trainExp(_json, _trainFunc):
     return mse, output
 
 
-
 def plotVelos(_output):
     v = np.transpose(_output.velos)
     g = sorted(v, key=lambda e: e[1])
@@ -100,19 +99,22 @@ trues = []
 col = ['alpha', 'theta', 'x_v', 'y_v']
 algos = [
     dr.heuristic_basic,
-    dr.SimpleAvg,
-    dr.WeightedAvg,
+    dr.sumDist,
+    dr.simpleAvg,
+    dr.weightedAvg,
     dr.ExponentialWeightedAvg2,
     dr.ExponentialWeightedAvg3,
     dr.simpleRegression
     ]
 MSEs = dict()
 Outputs = dict()
+velos = dict()
 jsons, rows = loadJsonsFromFolder(fileRoute)
 j_keys = list(jsons.keys())
 for e in j_keys:
     MSEs[e] = dict()
     Outputs[e] = dict()
+    velos[e] = []
     for s in algos:
         MSEs[e][s.__qualname__] = np.zeros((rows[e],4))
         Outputs[e][s.__qualname__] = []
@@ -125,10 +127,17 @@ for i, e in enumerate(j_keys):
         line_num = js['line_num']
         print("env: " + env)
         print("line: " + str(line_num))
+        velos[e].append(list(dr.getVelos(js)[0]))
+        velos[e][-1].append(np.mean(velos[e][-1][0:5]))
+        velos[e][-1].append(np.mean(velos[e][-1][5:10]))
+        velos[e][-1].append(np.mean(velos[e][-1]))
+        d, t = getTrueDistanceAndTime(js)
+        velos[e][-1].append(d/t)
+        velos[e][-1] = np.array(velos[e][-1])
         for s in algos:
             MSEs[e][s.__qualname__][i_j], o = printExp(js, s)
             Outputs[e][s.__qualname__].append(o)
-    
+    velos[e] = np.array(velos[e])
 # for i, js in enumerate(jsons):
 #     print("----------------------------------")
     
@@ -142,6 +151,10 @@ for i, e in enumerate(j_keys):
 print(MSEs)
 for e in j_keys:
     print("ENV: " + e)
+    print("Velos, shape=" + str(velos[e].shape))
+    print(velos[e])
+    ## Corrcoef: velos of first device, velos of second device, mean of d1, mean of d2, mean, true
+    print(np.corrcoef(velos[e], rowvar=False))
     for s in algos:
         print("   " + s.__qualname__)
         print("   " + str(np.mean(MSEs[e][s.__qualname__],0)))

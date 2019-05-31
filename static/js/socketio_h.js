@@ -32,7 +32,7 @@ socket_worker.onmessage = function(e) {
         //     break;
         //case "redirect":
         case "demo-2d-line":
-            lineInit(e.data["data"]);
+            //lineInit(e.data["data"]);
             break;
         case "demo-2d-pnt":
             pntUpdate(e.data["data"]);

@@ -241,13 +241,12 @@ def getVelos(_data):
         ret_v[0].append(np.sqrt(np.sum((l0s[i][0:2]-l0s[i-1][0:2])**2))/(l0s[i][2]-l0s[i-1][2]))
         ret_v[1].append(l0s[i][2])
     l1s = _data['second']['lines']
-    for i in range(1,l0s.shape[0]):
+    for i in range(1,l1s.shape[0]):
         ret_v[0].append(np.sqrt(np.sum((l1s[i][0:2]-l1s[i-1][0:2])**2))/(l1s[i][2]-l1s[i-1][2]))
         ret_v[1].append(l1s[i][2] + ts1 - ts0)
     ret_v[0] = np.array(ret_v[0])
     ret_v[1] = np.array(ret_v[1])
-    ret_v = np.array(ret_v)
-    return ret_v
+    return np.array(ret_v)
 
 ## Heuristic_basic algorithm
 def heuristic_basic(_data, **arg):
@@ -318,7 +317,7 @@ def heuristic_basic(_data, **arg):
     return ret
 
 
-def SimpleAvg(_data, **arg):
+def sumDist(_data, **arg):
     # _data:
     #   env
     #   subject
@@ -388,8 +387,77 @@ def SimpleAvg(_data, **arg):
     ret.velos = ret_v
     return ret
 
+def simpleAvg(_data, **arg):
+    # _data:
+    #   env
+    #   subject
+    #   first (line on first device, scaled by self.alpha)
+    #   second (line on second device)
 
-def WeightedAvg(_data, **arg):
+    # output: 
+    #   alpha
+    #   delta_theta
+    #   vector_origin
+
+    #set default args
+    for a in func_args:
+        if a not in arg.keys():
+            arg[a] = False
+            
+    alpha = 1
+    theta = 0
+    vector_origin = np.ndarray([0,0])
+
+    s0 = _data['first']['lines'][0][0:2]
+    e0 = _data['first']['lines'][-1][0:2]
+    l0 = e0 - s0
+    td0 = _data['first']['lines'][-1][2] - _data['first']['lines'][0][2]
+    ts0 = _data['first']['timestamp']
+    s1 = _data['second']['lines'][0][0:2]
+    e1 = _data['second']['lines'][-1][0:2]
+    l1 = e1 - s1
+    td1 = _data['second']['lines'][-1][2] - _data['second']['lines'][0][2]
+    ts1 = _data['second']['timestamp']
+    
+    # get delta_theta
+    theta = getAngleDiff(l0, l1)
+    
+    # rotate using theta
+    rot_l1 = []
+    for l in _data['second']['lines']:
+        rot_l1.append(np.append(getRotated(l[0:2], theta), l[2]))
+    rot_l1 = np.array(rot_l1)
+    ret_v = []
+    # calculate velocities using simple average
+    velos = []
+    weights = []
+    l0s = _data['first']['lines']
+    for i in range(1,l0s.shape[0]):
+        velos.append(
+                np.sqrt(np.sum((l0s[i][0:2]-l0s[i-1][0:2])**2))/(l0s[i][2]-l0s[i-1][2])
+            )
+        weights.append((l0s[i][2]-l0s[i-1][2]))
+        ret_v.append((velos[-1], l0s[i][2]))
+    if arg['using_2_lines']:
+        l1s = _data['second']['lines']
+        for i in range(1,l1s.shape[0]):
+            velos.append(
+                    np.sqrt(np.sum((l1s[i][0:2]-l1s[i-1][0:2])**2))/(l1s[i][2]-l1s[i-1][2])
+                )
+            weights.append((l1s[i][2]-l1s[i-1][2]))
+            ret_v.append((velos[-1], l1s[i][2]))
+
+    velos = np.array(velos)
+    v = np.average(velos)
+    
+    d = v * ((_data['second']['lines'][0][2] + ts1) - (_data['first']['lines'][-1][2] + ts0))
+    vd = d * (l0 / math.sqrt((l0*l0).sum()))
+    vector_origin = vd + e0 - rot_l1[0][0:2]
+    ret = Output(alpha, theta, vector_origin)
+    ret.velos = ret_v
+    return ret
+
+def weightedAvg(_data, **arg):
     # _data:
     #   env
     #   subject
