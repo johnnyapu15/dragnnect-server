@@ -52,6 +52,7 @@ def loadJsonsFromFolder(_route):
     for e in jsons.keys():
         rows[e] = len(jsons[e])
     return jsons, rows
+    
 ## For training
 def getTrueDistanceAndTime(_json):
     # v_d = v_o - e0 + s1
