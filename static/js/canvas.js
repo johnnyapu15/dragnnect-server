@@ -49,7 +49,8 @@ canvas_dragnnect.addEventListener('mouseup', function() {
     data['end_x'] = mouse.x;
     data['end_y'] = mouse.y;
     //data['pnts'] = pnts;
-    tmp = get11Pnts(pnts);
+    //tmp = get11Pnts(pnts);
+    tmp = get6Pnts(pnts);
     //ctx_dragnnect.clearRect(0, 0, canvas_dragnnect.width, canvas_dragnnect.height);
     //socket.emit('device_update', data)
     if (tmp[0][0] != -1) {
@@ -86,7 +87,8 @@ canvas_dragnnect.addEventListener('touchend', function(evt) {
   data['end_x'] = touches.x;
   data['end_y'] = touches.y;
   //data['pnts'] = pnts;
-  tmp = get11Pnts(pnts);
+  //tmp = get11Pnts(pnts);
+  tmp = get6Pnts(pnts);
   if (tmp[0][0] != -1) {
     data['11pnts'] = tmp;
     data['delta'] = getTime() - start_time;
@@ -140,6 +142,22 @@ function get11Pnts(arr) {
   return ret;
 }
 
+function get6Pnts(arr) {
+  ret = [];
+  if (arr.length < 5) {
+    alert("Too short line: Plz push reset btn and Draw long line!");
+    ret.push([-1, -1, -1]);
+    return ret;
+  }
+  else {
+    tmp = arr.length / 5.0;
+    for (i = 0; i < 5; i++) {
+      ret.push(arr[parseInt(tmp * i)]);
+    }
+    ret.push(arr[arr.length - 1]);
+  }
+  return ret;
+}
 
 // var canvas_coord = document.getElementById('coord_view');
 // var ctx_coord = canvas_coord.getContext('2d');

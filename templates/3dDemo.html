@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+
+<script src="../static/js/three.min.js"></script>
+
+
+<body>
+
+</body>
+
+<script>
+    var camera, scene, renderer;
+    var geometry, material, mesh;
+
+    init();
+    animate();
+
+    function init() {
+
+        camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
+        camera.position.z = 1;
+
+        scene = new THREE.Scene();
+
+        geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+        material = new THREE.MeshNormalMaterial();
+        mesh = new THREE.Mesh( geometry, material );
+        scene.add( mesh );
+        boxCoord = new THREE.Vector3(0, 0, 0);
+        mesh.position.set(boxCoord.x, boxCoord.y, boxCoord.z);
+        
+        console.log(mesh);
+
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        camera.lookAt(boxCoord.x, boxCoord.y, boxCoord.z);
+        camRot = new THREE.Vector3(
+            camera.rotation.x,
+            camera.rotation.y,
+            camera.rotation.z);
+        // Gyro
+        pre_x = camRot.x;
+        pre_y = camRot.z;
+        pre_z = camRot.y;
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', function(evt) {
+                console.log(mesh.rotation);
+
+                var abs = event.absolute;
+                var v = new THREE.Vector3(evt.alpha, evt.beta, evt.gamma);
+                var v = orient(v);
+                var y = evt.alpha;
+                var x = evt.beta;
+                var z = evt.gamma;
+                mesh.rotation.x = x / 100.0;
+                mesh.rotation.y = y / 100.0;// - pre_z;
+                mesh.rotation.z = z / 100.0;// - pre_y;
+                pre_y = y;
+                pre_z = z;
+                pre_x = x;
+            }, false);
+        }
+
+    }
+
+    function animate() {
+
+        requestAnimationFrame( animate );
+
+        // mesh.rotation.x += 0.01;
+        // mesh.rotation.y += 0.02;
+
+        renderer.render( scene, camera );
+
+    }
+    function orient( aa ) {
+    var x = aa.x, y = aa.y, z = aa.z, a = aa.a,
+        c = Math.cos( aa.a ),
+        s = Math.sin( aa.a ),
+        t = 1 - c,
+        // axis-angle to rotation matrix
+        rm00 =    c + x*x * t,
+        rm10 =  z*s + y*x * t,
+        rm20 = -y*s + z*x * t,
+        rm01 = -z*s + x*y * t,
+        rm11 =    c + y*y * t,
+        rm21 =  x*s + z*y * t,
+        rm02 =  y*s + x*z * t,
+        rm12 = -x*s + y*z * t,
+        rm22 =    c + z*z * t,
+        
+        TO_DEG = 180 / Math.PI,
+        ea = [],
+        n = Math.sqrt( rm22 * rm22 + rm20 * rm20 );
+
+    // rotation matrix to Euler angles
+    ea[1] = Math.atan2( -rm21, n );
+
+    if ( n > 0.001 ) {
+        ea[0] = Math.atan2( rm01, rm11 );
+        ea[2] = Math.atan2( rm20, rm22 );
+
+    } else {
+        ea[0] = 0;
+        ea[2] = ( rm21 > 0 ? 1 : -1 ) * Math.atan2( -rm10, rm00 );
+    }
+
+    return {
+        alpha: -ea[0] * TO_DEG - 180,
+        beta:  -ea[1] * TO_DEG,
+        gamma:  ea[2] * TO_DEG
+    };
+}
+</script>

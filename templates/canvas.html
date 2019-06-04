@@ -38,11 +38,12 @@
     </style>
   </head>
   <body>
+
     <div class="topnav" id="menu">
       <a class="tablinks" id="tab-1" onClick="leave()">Home</a>
       <a class="tablinks show" id="tab-2" onClick="openTab(event, 'content-2')">Canvas</a>
       <a class="tablinks" id="tab-3" onClick="openTab(event, 'content-3')">DEMO</a>
-      <div class="dropdown">
+      <a class="dropdown">
         <a class="dropbtn" onClick="openMenu()">Menu</a>
         <div class="dropdown-content" id="drop-menu">
           <a id="tab-4" onClick="openTab(event, 'content-4')">Reset</a>
@@ -50,8 +51,9 @@
           <a id="tab-6" onClick="openTab(event, 'content-6')">kill room</a>
           <a id="tab-7" onClick="openTab(event, 'content-7')">NTP</a>
         </div>
-      </div>
+      </a>
     </div>
+
       <div id="content-1" class="tabcontent">
         
       </div>
@@ -69,9 +71,9 @@
       </div>
 
       <div id="content-3" class="tabcontent">
-        <div id="div-2d-demo" style="position: absolute; width:100%; height:100%">
-          <canvas id="canvas-2d-demo" class="canvas"></canvas>  
-          <a id="a-2d-demo" style="position:absolute; top:0px; color:forestgreen">TESTTESTTESTTESTTTEST</a>     
+        <div id="div-2d-demo" style="z-index: 0; position: absolute; width:100%; height:100%; overflow: visible;">
+          <!-- <canvas id="canvas-2d-demo" class="canvas"></canvas>  
+          <a id="a-2d-demo" style="position:absolute; top:0px; color:forestgreen">TESTTESTTESTTESTTTEST</a>      -->
         </div>
 
       </div>
@@ -112,7 +114,9 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/dragnnect2d.js') }}"></script> -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/canvas.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/2d-demo-test.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/2d-map.js') }}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAdtzGaAnphoiThWBCYxmf_6jZLqr1B1TQ&callback=initMap"
+async defer></script>
     <script type="text/javascript" charset="utf-8">
       document.getElementById("textarea").innerHTML = "#Room: " + room_id + "\nDev Number: " + count;
       data['id'] = room_id;
@@ -199,6 +203,8 @@
         m: 'leave'
       });
     }
+    ntpCount = 10;
+    ntpStart();
     function room_killed(){
       window.location = "http://" + document.domain + ':' + location.port;
       return false;
