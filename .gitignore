@@ -1,2 +1,2 @@
 *.pyc
-exp/data/*
+/exp/data/*
