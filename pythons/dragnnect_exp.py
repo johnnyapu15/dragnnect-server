@@ -10,18 +10,12 @@
 # import modules
 import math
 import numpy as np
+import json
 
+func_args = ["using_2_lines"]
 
 # data structure classes
-# class LineData:
-#     def __init__(self, _id):
-#         self.device_index = _id 
-#         self.timeDelta = 0
-#         self.timestamp = 0
-#         self.lines = []
-#     def load(self, _data):
 
-# class device:
 class Output: 
     def __init__(self, _alpha, _theta, _vo):
         self.alpha = _alpha
@@ -119,7 +113,7 @@ class DeviceArrangement:
         p1 = p0 + getRotated(np.array((w, 0)), self.rot[1])
         p2 = p0 + getRotated(np.array((0, h)), self.rot[1])
         p3 = p0 + getRotated(np.array((w, h)), self.rot[1])
-        return [list(p0), list(p1), list(p3), list(p2)]
+        return [list(np.around(p0,3)), list(np.around(p1,3)), list(np.around(p3,3)), list(np.around(p2,3))]
     def get2dPointsArray(self):
         # Scaling
         w = self.width * self.alpha
@@ -141,6 +135,15 @@ class DeviceArrangement:
 
 
 # 2. json parser
+def jsonToEnv(_fileName):
+    f = open(_fileName, 'r')
+    j = json.loads(f.read())
+    f.close()
+    ret = dict()
+    for e in j.keys():
+        t = j[e]
+        ret[e] = Output(t['alpha'], t['theta'], t['vo'])
+    return ret
 
 def jsonToLineData(_fileName):
     f = open(_fileName, 'r')
@@ -160,11 +163,12 @@ def jsonToDeviceData(_fileName):
     ret[str(i1)] = (j['second']['width'], j['second']['height'])
     return ret
 
-# For algorithm exp
+## For algorithm exp
 def jsonToData(_fileName):
     f = open(_fileName, 'r')
     j = json.loads(f.read())
     f.close() 
+    j['line_num'] = int(j['line_num'])
     j['first']['lines'] = np.array(j['first']['lines'])
     j['second']['lines'] = np.array(j['second']['lines'])
     i0 = j['first']['dev_index']
@@ -180,8 +184,32 @@ def jsonToData(_fileName):
 #     output = 0
 #     if _algorithm == 'heuristic_uniform':
 #         output = heuristic_uniform(js)
-#     devs[0].link(devs[1], output) 
-    
+#     devs[0].link(devs[1], output)
+def getMSEScalar(_output, _true):
+    ret = np.sum((_true - _output)**2) / 2
+    return ret
+def getMSEVector(_output, _true):
+    # columns: alpha, theta, vo[0], vo[1]
+    # rows: number of data
+    if (type(_output) == Output):
+        o = _output.getNparray()
+    elif (type(_output) == list):
+        o = np.array(_output)
+    else:
+        o = _output
+    if (type(_true) == Output):
+        t = _true.getNparray()
+    elif (type(_true) == list):
+        t = np.array(_true)
+    else:
+        t = _true
+    if (len(o.shape) == 1):
+        o = np.array([o])
+        t = np.array([t])
+    ret = []
+    for i in range(4):
+        ret.append((np.sum((t[0:,i] - o[0:,i]) ** 2))/2)
+    return np.array(ret)
         
 # 3. Implemented algorithms
 def getAngleDiff(_l0, _l1):
@@ -232,7 +260,13 @@ def heuristic_basic(_data, **arg):
     #   alpha
     #   delta_theta
     #   vector_origin
-    alpha = 0
+    
+    #set default args
+    for a in func_args:
+        if a not in arg.keys():
+            arg[a] = False
+            
+    alpha = 1
     theta = 0
     vector_origin = np.ndarray([0,0])
 
