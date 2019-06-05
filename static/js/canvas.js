@@ -54,7 +54,7 @@ canvas_dragnnect.addEventListener('mouseup', function() {
     //ctx_dragnnect.clearRect(0, 0, canvas_dragnnect.width, canvas_dragnnect.height);
     //socket.emit('device_update', data)
     if (tmp[0][0] != -1) {
-      data['11pnts'] = tmp;
+      data['11pnts'] = pnts;
       data['delta'] = getTime() - start_time;
       //socket.emit('device_update', data);
       sendMsg({m:'device_update', data:data});
@@ -90,7 +90,7 @@ canvas_dragnnect.addEventListener('touchend', function(evt) {
   //tmp = get11Pnts(pnts);
   tmp = get6Pnts(pnts);
   if (tmp[0][0] != -1) {
-    data['11pnts'] = tmp;
+    data['11pnts'] = pnts;
     data['delta'] = getTime() - start_time;
     //socket.emit('device_update', data);
     sendMsg({m:'device_update', data:data});

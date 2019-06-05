@@ -2,6 +2,7 @@ import dragnnect_exp as dr
 import numpy as np
 import os
 import matplotlib.pyplot as plt
+import dragnnect_nn as nn
 
 # fileList = (os.listdir(fileRoute))
 # print(fileList)
@@ -54,6 +55,20 @@ def loadJsonsFromFolder(_route):
     return jsons, rows
     
 ## For training
+
+def loadTrainDataFromFolder(_route):
+    fileList = [f for f in os.listdir(_route) if os.path.isfile(_route + f)]
+    data = dict()
+    for i, r in enumerate(fileList):
+        js, devs = dr.jsonToData(fileRoute + r)
+        env = js['env']
+        if env not in data.keys():
+            data[env] = []
+        data[env].append(dr.getVelos(js))
+    rows = dict()
+    for e in data.keys():
+        rows[e] = len(data[e])
+    return data, rows
 def getTrueDistanceAndTime(_json):
     # v_d = v_o - e0 + s1
     global envs
@@ -94,7 +109,7 @@ def plotVelos(_output):
 
 ##################################
 envs = dr.jsonToEnv('exp/envs.json')
-fileRoute = "exp/test/"
+fileRoute = "exp/expd/"
 outputs = []
 trues = []
 col = ['alpha', 'theta', 'x_v', 'y_v']
@@ -139,6 +154,11 @@ for i, e in enumerate(j_keys):
             MSEs[e][s.__qualname__][i_j], o = printExp(js, s)
             Outputs[e][s.__qualname__].append(o)
     velos[e] = np.array(velos[e])
+
+# Machine Learning
+
+
+
 # for i, js in enumerate(jsons):
 #     print("----------------------------------")
     

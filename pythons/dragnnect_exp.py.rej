@@ -1,0 +1,60 @@
+diff a/pythons/dragnnect_exp.py b/pythons/dragnnect_exp.py	(rejected hunks)
+@@ -10,48 +10,23 @@
+ # import modules
+ import math
+ import numpy as np
+-import json
+ 
+-func_args = ["using_2_lines"]
+ 
+ # data structure classes
+-
++# class LineData:
++#     def __init__(self, _id):
++#         self.device_index = _id 
++#         self.timeDelta = 0
++#         self.timestamp = 0
++#         self.lines = []
++#     def load(self, _data):
++
++# class device:
+ class Output: 
+     def __init__(self, _alpha, _theta, _vo):
+         self.alpha = _alpha
+         self.theta = _theta
+-        if type(_vo) != np.array:
+-            v = np.array(_vo)
+-        else:
+-            v = _vo
+-        self.vo = v
+-    def __str__(self):
+-        ret = ""
+-        ret += "--Alpha: " + str(self.alpha)
+-        ret += "\n--Theta: " + str(self.theta)
+-        ret += "\n--V_o: " + str(self.vo)
+-        return ret
+-    def __repr__(self):
+-        return self.__str__()
+-    def __sub__(self, _o):
+-        return Output(
+-            self.alpha - _o.alpha,
+-            self.theta - _o.theta,
+-            self.vo - _o.vo
+-        )
+-    def getNparray(self):
+-        return np.array(
+-            (
+-                self.alpha, 
+-                self.theta,
+-                self.vo[0],
+-                self.vo[1]
+-            )
+-        )
+-    def getResidual(self, _true):
+-        # y - o
+-        return _true - self        
+-        
++        self.vo = _vo
+ class LineData:
+     def __init__(self, _id):
+         self.device_index = _id

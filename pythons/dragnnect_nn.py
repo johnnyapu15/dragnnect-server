@@ -2,9 +2,9 @@ import tensorflow as tf
 
 
 def fnLayer(_input, _output_size, _activation='relu'):
-    in = _input.shape.as_list()[-1]
+    inp = _input.shape.as_list()[-1]
     ret = []
-    ret.append(tf.Variable(tf.truncated_normal([in, _output_size])))
+    ret.append(tf.Variable(tf.truncated_normal([inp, _output_size])))
     ret.append(tf.Variable(tf.truncated_normal([_output_size], stddev= 0.1)))
     if _activation == 'relu':
         ret.append(tf.nn.relu(tf.matmul(_input, ret[0]) + ret[1]))
@@ -12,11 +12,18 @@ def fnLayer(_input, _output_size, _activation='relu'):
         ret.append(tf.nn.sigmoid(tf.matmul(_input, ret[0]) + ret[1]))
 
 class d_data:
-    def __init__(self, train, test):
+    def __init__(self, _data):
         self.i = 0
-        self.l = train.shape[0]
-        self.train = train
-        self.test = test
+        self.envs = self.data.keys()
+        self.data = _data
+    def init(self, _ratio):
+        self.ratio = _ratio
+        self.test_n = int(len(self.data) * self.ratio)
+        self.train_n = len(self.data) - self.test_n
+        for e in self.envs:
+            self.l = train.shape[0]
+            self.train = train
+            self.test = test
     def getNext(self, _cnt):
         if (self.l < self.i):
             self.i = 0
@@ -44,7 +51,7 @@ class d_mlp:
         self.train_step = tf.train.AdamOptimizer(1e-4).minimize(self.loss)
         self.acc = tf.reduce_mean(tf.abs(tf.divide(tf.subtract(self.h[-1],self.trues),(self.trues + 1e-10))))
 
-def train(net, _ep = 10000, _print=False, _data):
+def train(net, _data, _ep = 10000, _print=False):
     i = 0
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
@@ -59,7 +66,7 @@ def train(net, _ep = 10000, _print=False, _data):
                 feed_dict = {
                     net.trues: _data.getTestT(),
                     net.input: _data.getTestX()
-                }
+                })
                 print("Step %d||output: %d, loss: %d, accuracy: %d" % (i, o, l, a))
         
 
