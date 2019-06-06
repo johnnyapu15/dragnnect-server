@@ -11,6 +11,9 @@ def fnLayer(_input, _output_size, _activation='relu'):
     elif _activation == 'sigmoid':
         ret.append(tf.nn.sigmoid(tf.matmul(_input, ret[0]) + ret[1]))
 
+
+
+
 class d_data:
     def __init__(self, _data):
         self.i = 0

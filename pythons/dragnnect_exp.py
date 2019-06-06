@@ -162,6 +162,76 @@ def jsonToDeviceData(_fileName):
     ret[str(i0)] = (j['first']['width'], j['first']['height'])
     ret[str(i1)] = (j['second']['width'], j['second']['height'])
     return ret
+def getTV(_arr, _t):
+    for i in range(len(_arr[0])):
+        if _arr[1][i] > _t:
+            if i != 0:
+                return _arr[0][i]
+            else:
+                return _arr[0][0]
+    return _arr[0][-1]
+def jsonToTrain(_fileName, _l0, _l1):
+    f = open(_fileName, 'r')
+    j = json.loads(f.read())
+    f.close()
+    t0 = j['first']['lines'][-1][2]
+    t1 = j['second']['lines'][-1][2] 
+    vs0 = np.zeros((len(j['first']['lines']) - 1, 2))
+    if _l0 > _l1:
+        ret = np.zeros((2, _l0))
+    else:
+        ret = np.zeros((2, _l1))
+    
+    ls = j['first']['lines']
+    for i, p in enumerate(ls[:-1]):
+        vs0[i][0] = np.sqrt(((np.array(ls[i+1][0:2]) - np.array(p[0:2])) ** 2).sum()) / (ls[i+1][2] - p[2])
+        vs0[i][1] = ls[i+1][2]
+
+    vs0 = np.transpose(vs0)
+    for idx, t in enumerate(np.arange(t0 / _l0, t0 + 1, t0 / _l0)):
+        ret[0][idx] = getTV(vs0, t)
+    
+    vs1 = np.zeros((len(j['second']['lines']) - 1, 2))
+    ls = j['second']['lines']
+    for i, p in enumerate(ls[:-1]):
+        vs1[i][0] = np.sqrt(((np.array(ls[i+1][0:2]) - np.array(p[0:2])) ** 2).sum()) / (ls[i+1][2] - p[2])
+        vs1[i][1] = ls[i+1][2]
+    vs1 = np.transpose(vs1)
+    for idx, t in enumerate(np.arange(t1 / _l1, t1 + 1, t1 / _l1)):
+        ret[1][idx] = getTV(vs1, t)
+    return ret, vs0
+    
+def jsonToTrain_spline(_fileName, _l0, _l1):
+    f = open(_fileName, 'r')
+    j = json.loads(f.read())
+    f.close()
+    t0 = j['first']['lines'][-1][2]
+    t1 = j['second']['lines'][-1][2] 
+    vs0 = np.zeros((len(j['first']['lines']) - 1, 2))
+    if _l0 > _l1:
+        ret = np.zeros((2, _l0))
+    else:
+        ret = np.zeros((2, _l1))
+    
+    ls = j['first']['lines']
+    for i, p in enumerate(ls[:-1]):
+        vs0[i][0] = np.sqrt(((np.array(ls[i+1][0:2]) - np.array(p[0:2])) ** 2).sum()) / (ls[i+1][2] - p[2])
+        vs0[i][1] = p[2]
+
+    vs0 = np.transpose(vs0)
+    
+    for idx, t in enumerate(np.arange(t0 / _l0, t0 + 1, t0 / _l0)):
+        ret[0][idx] = getTV(vs0, t)
+    
+    vs1 = np.zeros((len(j['second']['lines']) - 1, 2))
+    ls = j['second']['lines']
+    for i, p in enumerate(ls[:-1]):
+        vs1[i][0] = np.sqrt(((np.array(ls[i+1][0:2]) - np.array(p[0:2])) ** 2).sum()) / (ls[i+1][2] - p[2])
+        vs1[i][1] = ls[i+1][2]
+    vs1 = np.transpose(vs1)
+    for idx, t in enumerate(np.arange(t1 / _l1, t1 + 1, t1 / _l1)):
+        ret[1][idx] = getTV(vs1, t)
+    return ret, vs0
 
 ## For algorithm exp
 def jsonToData(_fileName):

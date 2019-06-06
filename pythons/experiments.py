@@ -53,7 +53,30 @@ def loadJsonsFromFolder(_route):
     for e in jsons.keys():
         rows[e] = len(jsons[e])
     return jsons, rows
+def getMetaData(_route):
+    # env - number
+    # time - (min, max, mean, stdv)
+    ret = ""
+    js, r = loadJsonsFromFolder(_route)
+    # env
+    ret += "Environments: \n"
+    for i, e in enumerate(r.keys()):
+        ret += e + " --- " + str(r[e]) + ' rows\n'
+    ret += '\n'
     
+    # time meta data
+    t = dict()
+    for i, e in enumerate(js.keys()):
+        t[e] = np.zeros((2, r[e]))
+        for j in range(r[e]):
+            t[e][0][j] = js[e][j]['first']['lines'][-1][2]
+            t[e][1][j] = js[e][j]['second']['lines'][-1][2]
+    ret += "Meta data of timestamps (min, max, mean, stdv):"
+    for i, e in enumerate(r.keys()):
+        ret += e + " -----\n"
+        ret += " [" + str(t[e][0].min()) + ", " + str(t[e][0].max()) + ", " + str(t[e][0].mean()) + ", " + str(t[e][0].std()) + "\n"
+        ret += " [" + str(t[e][1].min()) + ", " + str(t[e][1].max()) + ", " + str(t[e][1].mean()) + ", " + str(t[e][1].std()) + "\n"
+    return ret
 ## For training
 
 def loadTrainDataFromFolder(_route):
@@ -134,26 +157,26 @@ for e in j_keys:
     for s in algos:
         MSEs[e][s.__qualname__] = np.zeros((rows[e],4))
         Outputs[e][s.__qualname__] = []
-
-for i, e in enumerate(j_keys):
-    js_e = jsons[e]
-    for i_j, js in enumerate(js_e):
-        print("----------------------------------")
-        env = js['env']
-        line_num = js['line_num']
-        print("env: " + env)
-        print("line: " + str(line_num))
-        velos[e].append(list(dr.getVelos(js)[0]))
-        velos[e][-1].append(np.mean(velos[e][-1][0:5]))
-        velos[e][-1].append(np.mean(velos[e][-1][5:10]))
-        velos[e][-1].append(np.mean(velos[e][-1]))
-        d, t = getTrueDistanceAndTime(js)
-        velos[e][-1].append(d/t)
-        velos[e][-1] = np.array(velos[e][-1])
-        for s in algos:
-            MSEs[e][s.__qualname__][i_j], o = printExp(js, s)
-            Outputs[e][s.__qualname__].append(o)
-    velos[e] = np.array(velos[e])
+print(getMetaData(fileRoute))
+# for i, e in enumerate(j_keys):
+#     js_e = jsons[e]
+#     for i_j, js in enumerate(js_e):
+#         print("----------------------------------")
+#         env = js['env']
+#         line_num = js['line_num']
+#         print("env: " + env)
+#         print("line: " + str(line_num))
+#         velos[e].append(list(dr.getVelos(js)[0]))
+#         velos[e][-1].append(np.mean(velos[e][-1][0:5]))
+#         velos[e][-1].append(np.mean(velos[e][-1][5:10]))
+#         velos[e][-1].append(np.mean(velos[e][-1]))
+#         d, t = getTrueDistanceAndTime(js)
+#         velos[e][-1].append(d/t)
+#         velos[e][-1] = np.array(velos[e][-1])
+#         for s in algos:
+#             MSEs[e][s.__qualname__][i_j], o = printExp(js, s)
+#             Outputs[e][s.__qualname__].append(o)
+#     velos[e] = np.array(velos[e])
 
 # Machine Learning
 
