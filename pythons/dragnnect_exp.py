@@ -170,17 +170,13 @@ def getTV(_arr, _t):
             else:
                 return _arr[0][0]
     return _arr[0][-1]
-def jsonToTrain(_fileName, _l0, _l1):
-    f = open(_fileName, 'r')
-    j = json.loads(f.read())
-    f.close()
+def jsonToTrain(_js, _l0, _l1):
+    j = _js
     t0 = j['first']['lines'][-1][2]
     t1 = j['second']['lines'][-1][2] 
     vs0 = np.zeros((len(j['first']['lines']) - 1, 2))
-    if _l0 > _l1:
-        ret = np.zeros((2, _l0))
-    else:
-        ret = np.zeros((2, _l1))
+    r0 = np.zeros(_l0)
+    r1 = np.zeros(_l1)
     
     ls = j['first']['lines']
     for i, p in enumerate(ls[:-1]):
@@ -189,7 +185,7 @@ def jsonToTrain(_fileName, _l0, _l1):
 
     vs0 = np.transpose(vs0)
     for idx, t in enumerate(np.arange(t0 / _l0, t0 + 1, t0 / _l0)):
-        ret[0][idx] = getTV(vs0, t)
+        r0[idx] = getTV(vs0, t)
     
     vs1 = np.zeros((len(j['second']['lines']) - 1, 2))
     ls = j['second']['lines']
@@ -198,8 +194,9 @@ def jsonToTrain(_fileName, _l0, _l1):
         vs1[i][1] = ls[i+1][2]
     vs1 = np.transpose(vs1)
     for idx, t in enumerate(np.arange(t1 / _l1, t1 + 1, t1 / _l1)):
-        ret[1][idx] = getTV(vs1, t)
-    return ret, vs0
+        r1[idx] = getTV(vs1, t)
+    tmp = np.append(r0, r1)
+    return np.append(tmp, j['second']['timestamp'] - j['first']['timestamp'] - t0)
     
 def jsonToTrain_spline(_fileName, _l0, _l1):
     f = open(_fileName, 'r')

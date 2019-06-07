@@ -150,14 +150,17 @@ Outputs = dict()
 velos = dict()
 jsons, rows = loadJsonsFromFolder(fileRoute)
 j_keys = list(jsons.keys())
+r = 0
 for e in j_keys:
-    MSEs[e] = dict()
-    Outputs[e] = dict()
-    velos[e] = []
-    for s in algos:
-        MSEs[e][s.__qualname__] = np.zeros((rows[e],4))
-        Outputs[e][s.__qualname__] = []
-print(getMetaData(fileRoute))
+    r += rows[e]
+# for e in j_keys:
+#     MSEs[e] = dict()
+#     Outputs[e] = dict()
+#     velos[e] = []
+#     for s in algos:
+#         MSEs[e][s.__qualname__] = np.zeros((rows[e],4))
+#         Outputs[e][s.__qualname__] = []
+# print(getMetaData(fileRoute))
 # for i, e in enumerate(j_keys):
 #     js_e = jsons[e]
 #     for i_j, js in enumerate(js_e):
@@ -179,7 +182,25 @@ print(getMetaData(fileRoute))
 #     velos[e] = np.array(velos[e])
 
 # Machine Learning
-
+l0 = 4
+l1 = 2
+c = l0 + l1 + 1
+# create train data
+traindata = dict()
+traindata['x'] = np.zeros((r, c))
+traindata['trues'] = np.zeros((r, 1))
+tmpi = 0
+for i, e in enumerate(j_keys):
+    js_e = jsons[e]
+    for j, js in enumerate(js_e):
+        traindata['x'][tmpi] = dr.jsonToTrain(js, l0, l1) * 100
+        d, t = getTrueDistanceAndTime(js)
+        traindata['trues'][tmpi] = d / t * 100
+        tmpi += 1
+dt = nn.d_data(traindata)
+dt.init(0.8)
+mlp = nn.d_mlp(c, [64, 128, 128])
+nn.train(mlp, dt, 30000, _print=True)
 
 
 # for i, js in enumerate(jsons):
@@ -192,17 +213,17 @@ print(getMetaData(fileRoute))
 #     for s in algos:
 #         MSEs[env][s.__qualname__][i] = printExp(devs, js, s)
 
-print(MSEs)
-for e in j_keys:
-    print("ENV: " + e)
-    print("Velos, shape=" + str(velos[e].shape))
-    print(velos[e])
-    ## Corrcoef: velos of first device, velos of second device, mean of d1, mean of d2, mean, true
-    print(np.corrcoef(velos[e], rowvar=False))
-    for s in algos:
-        print("   " + s.__qualname__)
-        print("   " + str(np.mean(MSEs[e][s.__qualname__],0)))
-        print("   " + str(np.std(MSEs[e][s.__qualname__], 0)))
+# print(MSEs)
+# for e in j_keys:
+#     print("ENV: " + e)
+#     print("Velos, shape=" + str(velos[e].shape))
+#     print(velos[e])
+#     ## Corrcoef: velos of first device, velos of second device, mean of d1, mean of d2, mean, true
+#     print(np.corrcoef(velos[e], rowvar=False))
+#     for s in algos:
+#         print("   " + s.__qualname__)
+#         print("   " + str(np.mean(MSEs[e][s.__qualname__],0)))
+#         print("   " + str(np.std(MSEs[e][s.__qualname__], 0)))
     
-plotVelos(Outputs[j_keys[-1]]["simpleRegression"][-1])
+# plotVelos(Outputs[j_keys[-1]]["simpleRegression"][-1])
 
