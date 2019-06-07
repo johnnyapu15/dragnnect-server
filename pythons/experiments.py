@@ -193,13 +193,13 @@ tmpi = 0
 for i, e in enumerate(j_keys):
     js_e = jsons[e]
     for j, js in enumerate(js_e):
-        traindata['x'][tmpi] = dr.jsonToTrain(js, l0, l1) * 100
+        traindata['x'][tmpi] = dr.jsonToTrain(js, l0, l1)
         d, t = getTrueDistanceAndTime(js)
-        traindata['trues'][tmpi] = d / t * 100
+        traindata['trues'][tmpi] = d / t
         tmpi += 1
 dt = nn.d_data(traindata)
 dt.init(0.8)
-mlp = nn.d_mlp(c, [64, 128, 128])
+mlp = nn.d_mlp(c, [64, 64])
 nn.train(mlp, dt, 30000, _print=True)
 
 

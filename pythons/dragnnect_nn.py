@@ -62,7 +62,7 @@ class d_mlp:
         #self.loss = -tf.reduce_sum(self.trues * tf.log(self.h[-1]))
         #self.loss = tf.reduce_mean(tf.squared_difference(self.trues, self.h[-1]))
         self.loss = tf.losses.mean_squared_error(self.trues, self.h[-1][-1])
-        self.train_step = tf.train.AdamOptimizer(1e-5).minimize(self.loss)
+        self.train_step = tf.train.AdamOptimizer(1e-4).minimize(self.loss)
         self.acc = tf.reduce_mean(tf.abs(tf.divide(tf.subtract(self.h[-1][-1],self.trues),(self.trues + 1e-10))))
 
 def train(net, _data, _ep = 10000, _print=False):
@@ -81,7 +81,12 @@ def train(net, _data, _ep = 10000, _print=False):
                     net.trues: _data.getTestT(),
                     net.input: _data.getTestX()
                 })
-                print("Step " + str(i) + "|| loss: %f, accuracy: %f" % (l, a))
+                dl, da = sess.run([net.loss, net.acc],
+                feed_dict = {
+                    net.trues: bt,
+                    net.input: bx
+                })
+                print("Step " + str(i) + "|| loss: %f, accuracy: %f || trains) loss: %f, acc: %f" % (l, a, dl, da))
         t = np.append(o, _data.getTestT(), 1)
         t = np.append(t, (o-_data.getTestT()), 1)
         print(t)
