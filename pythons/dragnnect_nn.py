@@ -49,26 +49,30 @@ class d_data:
 
 class d_mlp:
     def __init__(self, _input_size, _hidden):
-        self.input = tf.placeholder(tf.float32, [None, _input_size])
-        #self.output_num = 1
-        self.trues = tf.placeholder(tf.float32, (None, 1))
-        self.h = []
-        self.hl = _hidden
-        self.hl.append(1)
-        self.h.append(fnLayer(self.input, self.hl[0]))
-        for idx, h in enumerate(self.hl[1:-1]):
-            self.h.append(fnLayer(self.h[idx-1][-1], h))
-        self.h.append(fnLayer(self.h[-2][-1], self.hl[-1], 'leaky_relu'))
-        #self.loss = -tf.reduce_sum(self.trues * tf.log(self.h[-1]))
-        #self.loss = tf.reduce_mean(tf.squared_difference(self.trues, self.h[-1]))
-        self.loss = tf.losses.mean_squared_error(self.trues, self.h[-1][-1])
-        self.train_step = tf.train.AdamOptimizer(1e-4).minimize(self.loss)
-        self.acc = tf.reduce_mean(tf.abs(tf.divide(tf.subtract(self.h[-1][-1],self.trues),(self.trues + 1e-10))))
+        with tf.device('/gpu:0'):
+            self.input = tf.placeholder(tf.float32, [None, _input_size])
+            #self.output_num = 1
+            self.trues = tf.placeholder(tf.float32, (None, 1))
+            self.h = []
+            self.hl = _hidden
+            self.hl.append(1)
+            self.h.append(fnLayer(self.input, self.hl[0]))
+            for idx, h in enumerate(self.hl[1:-1]):
+                self.h.append(fnLayer(self.h[idx-1][-1], h))
+            self.h.append(fnLayer(self.h[-2][-1], self.hl[-1], 'leaky_relu'))
+            #self.loss = -tf.reduce_sum(self.trues * tf.log(self.h[-1]))
+            #self.loss = tf.reduce_mean(tf.squared_difference(self.trues, self.h[-1]))
+            
+            self.acc = tf.reduce_mean(tf.abs(tf.divide(tf.subtract(self.h[-1][-1],self.trues),(self.trues + 1e-10))))
+        with tf.device('/cpu:0'):
+            self.loss = tf.losses.mean_squared_error(self.trues, self.h[-1][-1])
+            self.train_step = tf.train.AdamOptimizer(1e-4).minimize(self.loss)
 
 def train(net, _data, _ep = 10000, _print=False):
     i = 0
     init = tf.global_variables_initializer()
-    with tf.Session() as sess:
+    conf = tf.ConfigProto(log_device_placement=True)
+    with tf.Session(config=conf) as sess:
         sess.run(init)
         loss_val, acc_val = 0, 0
         for _ in range(_ep):
