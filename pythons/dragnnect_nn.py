@@ -87,6 +87,9 @@ def train(net, _data, _ep = 10000, _print=False):
                     net.input: bx
                 })
                 print("Step " + str(i) + "|| loss: %f, accuracy: %f || trains) loss: %f, acc: %f" % (l, a, dl, da))
+                if (l < 50):
+                    print("Training end.")
+                    break
         t = np.append(o, _data.getTestT(), 1)
         t = np.append(t, (o-_data.getTestT()), 1)
         print(t)

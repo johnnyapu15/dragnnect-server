@@ -130,6 +130,17 @@ def plotVelos(_output):
     plt.plot(g[1], g[0], trues[0], trues[1], 'r-')
     plt.show()
 
+
+def checkData(_route):
+    fileList = [f for f in os.listdir(_route) if os.path.isfile(_route + f)]
+    data = dict()
+    ret = ''
+    for i, r in enumerate(fileList):
+        js, devs = dr.jsonToData(fileRoute + r)
+        ret += r
+        ret += " " + str(js['second']['timestamp'] - js['first']['timestamp'])
+        print(ret)
+        ret = ''
 ##################################
 envs = dr.jsonToEnv('exp/envs.json')
 fileRoute = "exp/expd/"
@@ -160,7 +171,8 @@ for e in j_keys:
 #     for s in algos:
 #         MSEs[e][s.__qualname__] = np.zeros((rows[e],4))
 #         Outputs[e][s.__qualname__] = []
-# print(getMetaData(fileRoute))
+print(getMetaData(fileRoute))
+#checkData(fileRoute)
 # for i, e in enumerate(j_keys):
 #     js_e = jsons[e]
 #     for i_j, js in enumerate(js_e):
@@ -181,9 +193,11 @@ for e in j_keys:
 #             Outputs[e][s.__qualname__].append(o)
 #     velos[e] = np.array(velos[e])
 
+
+
 # Machine Learning
-l0 = 4
-l1 = 2
+l0 = 10
+l1 = 5
 c = l0 + l1 + 1
 # create train data
 traindata = dict()
@@ -193,14 +207,14 @@ tmpi = 0
 for i, e in enumerate(j_keys):
     js_e = jsons[e]
     for j, js in enumerate(js_e):
-        traindata['x'][tmpi] = dr.jsonToTrain(js, l0, l1)
+        traindata['x'][tmpi] = dr.jsonToTrain(js, l0, l1) * 100
         d, t = getTrueDistanceAndTime(js)
-        traindata['trues'][tmpi] = d / t
+        traindata['trues'][tmpi] = d / t * 100
         tmpi += 1
 dt = nn.d_data(traindata)
 dt.init(0.8)
-mlp = nn.d_mlp(c, [64, 64])
-nn.train(mlp, dt, 30000, _print=True)
+mlp = nn.d_mlp(c, [128, 64])
+nn.train(mlp, dt, 1000000, _print=True)
 
 
 # for i, js in enumerate(jsons):
