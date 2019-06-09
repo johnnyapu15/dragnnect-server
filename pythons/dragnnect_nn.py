@@ -141,7 +141,8 @@ class d_cnn:
 def train(net, _data, _ep = 10000, _print=False, _aim=0.1):
     i = 0
     init = tf.global_variables_initializer()
-    with tf.Session() as sess:
+    conf = tf.ConfigProto(log_device_placement=True)
+    with tf.Session(config=conf) as sess:
         sess.run(init)
         loss_val, acc_val = 0, 0
         et = 0
