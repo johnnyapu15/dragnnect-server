@@ -280,6 +280,7 @@ def getExpFromMLResult(_result):
 # # Machine Learning
 def dl():
     global jsons, j_keys
+    m = 1000
     c = l0 + l1 + 1
     # create train data
     traindata = dict()
@@ -294,15 +295,17 @@ def dl():
             tmp = dr.jsonToTrain(js, l0, l1)
             tmp2 = []
             for i, v in enumerate(tmp[:-1]):
-                tmp2.append(v*t)
+                tmp2.append(v*t*m)
+            tmp *= m
             traindata['x'][tmpi] = np.append(tmp, tmp2)
-            traindata['trues'][tmpi] = d / t
+            traindata['trues'][tmpi] = d / t * m
             traindata['filename'].append(js['filename'])
             tmpi += 1
     dt = nn.d_data(traindata)
     dt.init(0.2) # test ratio
     net = nn.d_mlp(c*2 - 1, [64, 32], ['sigmoid', 'relu'])
-    tr = nn.train(net, dt, 500, _print=True, _aim=10)
+    tr = nn.train(net, dt, 5000, _print=True, _aim=10)
+    tr['out']['outputs'] /= m
     getExpFromMLResult(tr['out'])
 if deeplearn:
     dl()
