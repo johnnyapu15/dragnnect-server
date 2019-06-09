@@ -264,6 +264,7 @@ def getExpFromMLResult(_result):
     for i, e in enumerate(jsons.keys()):
         Outputs[e] = []
         MSEs[e] = []
+    print(_result)
     for i, filename in enumerate(_result['keys']):
         _json = jsons_name[filename]
         velo = _result['outputs'][i]
@@ -301,7 +302,7 @@ def dl():
     dt = nn.d_data(traindata)
     dt.init(0.2) # test ratio
     net = nn.d_mlp(c*2 - 1, [64, 32], ['sigmoid', 'relu'])
-    tr = nn.train(net, dt, 500000, _print=True, _aim=10)
+    tr = nn.train(net, dt, 500, _print=True, _aim=10)
     getExpFromMLResult(tr['out'])
 if deeplearn:
     dl()
