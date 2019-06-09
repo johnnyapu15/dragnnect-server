@@ -94,23 +94,25 @@ class d_data:
 
 class d_mlp:
     def __init__(self, _input_size, _hidden, _act = []):
-        self.input_size = _input_size
-        self.input = tf.placeholder(tf.float32, [None, _input_size])
-        #self.output_num = 1
-        self.trues = tf.placeholder(tf.float32, (None, 1))
-        self.h = []
-        self.hl = _hidden
-        self.hl.append(1)
-        self.h.append(fnLayer(self.input, self.hl[0]))
-        if _act == []:
-            for i in range(len(_hidden)):
-                _act.append(None)
-        for idx, h in enumerate(self.hl[1:-1]):
-            self.h.append(fnLayer(self.h[idx-1][-1], h, _act[idx]))
-        self.h.append(fnLayer(self.h[-2][-1], self.hl[-1], 'leaky_relu'))
-        self.loss = tf.losses.mean_squared_error(self.trues, self.h[-1][-1])
-        self.train_step = tf.train.AdamOptimizer(1e-4).minimize(self.loss)
-        self.acc = tf.sqrt(tf.reduce_mean(tf.pow(tf.subtract(self.h[-1][-1],self.trues), 2)))
+        with tf.device('/gpu:0'):
+            self.input_size = _input_size
+            self.input = tf.placeholder(tf.float32, [None, _input_size])
+            #self.output_num = 1
+            self.trues = tf.placeholder(tf.float32, (None, 1))
+            self.h = []
+            self.hl = _hidden
+            self.hl.append(1)
+            self.h.append(fnLayer(self.input, self.hl[0]))
+            if _act == []:
+                for i in range(len(_hidden)):
+                    _act.append(None)
+            for idx, h in enumerate(self.hl[1:-1]):
+                self.h.append(fnLayer(self.h[idx-1][-1], h, _act[idx]))
+            self.h.append(fnLayer(self.h[-2][-1], self.hl[-1], 'leaky_relu'))
+            self.loss = tf.losses.mean_squared_error(self.trues, self.h[-1][-1])
+            self.acc = tf.sqrt(tf.reduce_mean(tf.pow(tf.subtract(self.h[-1][-1],self.trues), 2)))
+        with tf.device('/cpu:0'):
+            self.train_step = tf.train.AdamOptimizer(1e-4).minimize(self.loss)
     def __str__(self):
         ret = ''
         ret += str(self.input_size) + "-" + str(self.hl)
