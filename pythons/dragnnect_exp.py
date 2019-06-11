@@ -162,6 +162,93 @@ def jsonToDeviceData(_fileName):
     ret[str(i0)] = (j['first']['width'], j['first']['height'])
     ret[str(i1)] = (j['second']['width'], j['second']['height'])
     return ret
+def getTV(_arr, _t, _pre_t):
+    tmp = 0
+    n = 0
+    _s = 0
+    _e = 0
+    for i in range(len(_arr[0])):
+        if _arr[1][i] > _pre_t:
+            _s = i
+            break
+    for i in range(_s, len(_arr[0])):
+        if _arr[1][i] > _t:
+            _e = i
+            if _s == _e:
+                return _arr[0][_s]
+            if i != 0:
+                return _arr[0][_s:_s + _e].mean()
+            else:
+                return _arr[0][0]
+    return _arr[0][-1]
+def getTrueDistanceAndTime(_json):
+    # v_d = v_o - e0 + s1
+    global envs
+    true = envs[_json['env']]
+    vd = np.array(true.vo) - _json['first']['lines'][-1][0:2] + _json['second']['lines'][0][0:2]
+    dist = np.sqrt(np.sum(vd**2))
+    time = _json['second']['timestamp'] - (_json['first']['timestamp'] + _json['first']['lines'][-1][2])
+    return dist, time
+def jsonToTrain(_js, _l0, _l1):
+    j = _js
+    t0 = j['first']['lines'][-1][2]
+    t1 = j['second']['lines'][-1][2] 
+    vs0 = np.zeros((len(j['first']['lines']) - 1, 2))
+    r0 = np.zeros(_l0)
+    r1 = np.zeros(_l1)
+    
+    ls = j['first']['lines']
+    for i, p in enumerate(ls[:-1]):
+        vs0[i][0] = np.sqrt(((np.array(ls[i+1][0:2]) - np.array(p[0:2])) ** 2).sum()) / (ls[i+1][2] - p[2])
+        vs0[i][1] = ls[i+1][2]
+
+    vs0 = np.transpose(vs0)
+    term = t0 / _l0
+    for idx, t in enumerate(np.arange(term, t0 + 1, term)):
+        r0[idx] = getTV(vs0, t, t - term)
+    vs1 = np.zeros((len(j['second']['lines']) - 1, 2))
+    ls = j['second']['lines']
+    for i, p in enumerate(ls[:-1]):
+        vs1[i][0] = np.sqrt(((np.array(ls[i+1][0:2]) - np.array(p[0:2])) ** 2).sum()) / (ls[i+1][2] - p[2])
+        vs1[i][1] = ls[i+1][2]
+    vs1 = np.transpose(vs1)
+    term = t1 / _l1
+    for idx, t in enumerate(np.arange(term, t1 + 1, term)):
+        r1[idx] = getTV(vs1, t, t - term)
+    tmp = np.append(r0, r1)
+    return np.append(tmp, j['second']['timestamp'] - j['first']['timestamp'] - t0)
+    
+def jsonToTrain_spline(_fileName, _l0, _l1):
+    f = open(_fileName, 'r')
+    j = json.loads(f.read())
+    f.close()
+    t0 = j['first']['lines'][-1][2]
+    t1 = j['second']['lines'][-1][2] 
+    vs0 = np.zeros((len(j['first']['lines']) - 1, 2))
+    if _l0 > _l1:
+        ret = np.zeros((2, _l0))
+    else:
+        ret = np.zeros((2, _l1))
+    
+    ls = j['first']['lines']
+    for i, p in enumerate(ls[:-1]):
+        vs0[i][0] = np.sqrt(((np.array(ls[i+1][0:2]) - np.array(p[0:2])) ** 2).sum()) / (ls[i+1][2] - p[2])
+        vs0[i][1] = p[2]
+
+    vs0 = np.transpose(vs0)
+    
+    for idx, t in enumerate(np.arange(t0 / _l0, t0 + 1, t0 / _l0)):
+        ret[0][idx] = getTV(vs0, t)
+    
+    vs1 = np.zeros((len(j['second']['lines']) - 1, 2))
+    ls = j['second']['lines']
+    for i, p in enumerate(ls[:-1]):
+        vs1[i][0] = np.sqrt(((np.array(ls[i+1][0:2]) - np.array(p[0:2])) ** 2).sum()) / (ls[i+1][2] - p[2])
+        vs1[i][1] = ls[i+1][2]
+    vs1 = np.transpose(vs1)
+    for idx, t in enumerate(np.arange(t1 / _l1, t1 + 1, t1 / _l1)):
+        ret[1][idx] = getTV(vs1, t)
+    return ret, vs0
 
 ## For algorithm exp
 def jsonToData(_fileName):
