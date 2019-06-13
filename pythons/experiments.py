@@ -178,7 +178,7 @@ print(getMetaData(jsons, rows))
 
 
 expbasic = True
-deeplearn = True
+deeplearn = False
 getCoef = True
 l0 = 12
 l1 = 12
