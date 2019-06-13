@@ -294,8 +294,8 @@ def getMSEVector(_output, _true):
         o = np.array([o])
         t = np.array([t])
     ret = []
-    for i in range(4):
-        ret.append((np.sum((t[0:,i] - o[0:,i]) ** 2))/2)
+    for i in range(len(t[0])):
+        ret.append(np.sqrt((np.mean((t[0:,i] - o[0:,i]) ** 2))))
     return np.array(ret)
         
 # 3. Implemented algorithms
@@ -400,6 +400,7 @@ def heuristic_basic(_data, **arg):
     vd = d * (l0 / math.sqrt((l0*l0).sum()))
     vector_origin = vd + e0 - rot_s1
     ret = Output(alpha, theta, vector_origin)
+    velos.append((d, ((_data['second']['lines'][0][2] + ts1) - (_data['first']['lines'][-1][2] + ts0))))
     ret.velos = velos
     return ret
 
@@ -541,6 +542,7 @@ def simpleAvg(_data, **arg):
     vd = d * (l0 / math.sqrt((l0*l0).sum()))
     vector_origin = vd + e0 - rot_l1[0][0:2]
     ret = Output(alpha, theta, vector_origin)
+    ret_v.append([d])
     ret.velos = ret_v
     return ret
 
@@ -614,6 +616,7 @@ def weightedAvg(_data, **arg):
     vd = d * (l0 / math.sqrt((l0*l0).sum()))
     vector_origin = vd + e0 - rot_l1[0][0:2]
     ret = Output(alpha, theta, vector_origin)
+    ret_v.append([d])
     ret.velos = ret_v
     return ret
 
@@ -885,6 +888,7 @@ def simpleRegression(_data, **arg):
     vd = d * (l0 / math.sqrt((l0*l0).sum()))
     vector_origin = vd + e0 - rot_l1[0][0:2]
     ret = Output(alpha, theta, vector_origin)
+    ret_v.append([d])
     ret.velos = ret_v
     return ret
 
