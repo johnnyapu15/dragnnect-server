@@ -177,7 +177,7 @@ print(getMetaData(jsons, rows))
 #checkData(fileRoute)
 
 
-expbasic = False
+expbasic = True
 deeplearn = True
 getCoef = True
 l0 = 12
@@ -258,11 +258,11 @@ if getCoef:
 
 def getOutputFromVelo(_json, _velo):
     v1 = _json['first']['lines'][-1][0:2] - _json['first']['lines'][0][0:2]
-    s0 = _data['first']['lines'][0][0:2]
-    e0 = _data['first']['lines'][-1][0:2]
+    s0 = _json['first']['lines'][0][0:2]
+    e0 = _json['first']['lines'][-1][0:2]
     l0 = e0 - s0
-    s1 = _data['second']['lines'][0][0:2]
-    e1 = _data['second']['lines'][-1][0:2]
+    s1 =_json['second']['lines'][0][0:2]
+    e1 =_json['second']['lines'][-1][0:2]
     l1 = e1 - s1
     theta = dr.getAngleDiff(l0, l1)
     v2 = dr.getRotated(_json['second']['lines'][-1][0:2] - _json['second']['lines'][0][0:2], theta)
@@ -386,8 +386,28 @@ if deeplearn:
         # [32, 32, 16],
         #[64, 128, 16],
         # [64, 32, 32],
+        # [
+        #     [64, 64, 64, 64, 64],
+        #     [64, 256, 256, 128, 32]
+        # ],
+        # [
+        #     [64, 128, 64, 64, 16],
+        #     [64, 256, 256, 128, 32]
+        # ],
+        # [
+        #     [64, 128, 128, 64, 16],
+        #     [64, 256, 256, 128, 32]
+        # ],
         [
-            [64, 256, 256, 64, 16],
+            [64, 256, 128, 64, 16],
+            [64, 256, 256, 128, 32]
+        ],
+        [
+            [128, 128, 128, 64, 16],
+            [64, 256, 256, 128, 32]
+        ],
+        [
+            [64, 64, 64, 64, 16],
             [64, 256, 256, 128, 32]
         ]
     ]
@@ -422,8 +442,8 @@ if deeplearn:
     
     for i, e in enumerate(hidden):
         s = str(e)
-        dnnres = np.zeros((4, 2, 5))
-        cnnres = np.zeros((4, 2, 5))
+        dnnres = np.zeros((6, 2, 5))
+        cnnres = np.zeros((6, 2, 5))
         for j in range(10):
             if d:
                 dnnres += printMSE(dnnresult[str(e[0])][j])
