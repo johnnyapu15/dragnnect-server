@@ -177,11 +177,11 @@ print(getMetaData(jsons, rows))
 #checkData(fileRoute)
 
 
-expbasic = True
+expbasic = False
 deeplearn = False
 getCoef = True
-l0 = 12
-l1 = 12
+l0 = 13
+l1 = 13
 ## Exp basic
 if expbasic:
     for e in j_keys:
@@ -245,6 +245,7 @@ if getCoef:
         print("Coef:")
         cc = np.corrcoef(velos[e], rowvar=False)
         print(cc[-1])
+    print(velos)
 
 # for i, js in enumerate(jsons):
 #     print("----------------------------------")
@@ -394,22 +395,22 @@ if deeplearn:
         #     [64, 128, 64, 64, 16],
         #     [64, 256, 256, 128, 32]
         # ],
+        [
+            [64, 256, 256, 64, 16],
+            [64, 256, 256, 128, 32]
+        ],
         # [
-        #     [64, 128, 128, 64, 16],
+        #     [64, 256, 128, 64, 16],
         #     [64, 256, 256, 128, 32]
         # ],
-        [
-            [64, 256, 128, 64, 16],
-            [64, 256, 256, 128, 32]
-        ],
-        [
-            [128, 128, 128, 64, 16],
-            [64, 256, 256, 128, 32]
-        ],
-        [
-            [64, 64, 64, 64, 16],
-            [64, 256, 256, 128, 32]
-        ]
+        # [
+        #     [128, 128, 128, 64, 16],
+        #     [64, 256, 256, 128, 32]
+        # ],
+        # [
+        #     [64, 64, 64, 64, 16],
+        #     [64, 256, 256, 128, 32]
+        # ]
     ]
     acts = [
         ['sigmoid','sigmoid','sigmoid','sigmoid', 'relu'],

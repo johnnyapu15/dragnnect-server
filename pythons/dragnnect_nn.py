@@ -338,7 +338,7 @@ def train(net, _data, _ep = 10000, _print=False, _aim=0.1, _savename = 'dnn.ckpt
                 out['outputs'] = do
                 it = i
                 st = time.time()
-                if (a < _aim) | (da < 1e-4):
+                if (a < _aim) | (dl < 1e-6):
                     print("Training success.")
                     break
         saver.save(sess, './model/' + _savename, global_step=net.global_step)
