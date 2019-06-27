@@ -184,9 +184,14 @@ print(getMetaData(jsons, rows))
 
 
 expbasic = False
+<<<<<<< HEAD
 deeplearn = False
 getCoef = False
 stdvelo = True
+=======
+deeplearn = True
+getCoef = True
+>>>>>>> 3049c69717a3b0cd7fc5c8fece69854f825d8c42
 l0 = 13
 l1 = 13
 ## Exp basic
@@ -331,7 +336,7 @@ def dl(_ep, _hidden, _acts, _model):
     m = 1
     c = l0 + l1
     c *= 2
-    c += 1
+    c += 2
     # create train data
     traindata = dict()
     traindata['x'] = np.zeros((r, c, 1))
@@ -347,6 +352,7 @@ def dl(_ep, _hidden, _acts, _model):
             for i, v in enumerate(tmp):
                 tmp2.append(v*t)
             tmp = np.append(tmp, tmp2)
+            tmp = np.append(tmp, dr.heuristic_basic(js).ve)
             tmp = np.append(tmp, dr.jsonToTrain(js, l0, l1)[-1])
             tmp *= m
             traindata['x'][tmpi] = np.reshape(tmp, (c, 1))
@@ -355,7 +361,7 @@ def dl(_ep, _hidden, _acts, _model):
             tmpi += 1
     #nn.dataToTensor(traindata, 0)
     dt = nn.d_data2(traindata)
-    dt.init(0.05) # test ratio
+    dt.init(0.1) # test ratio
     net = nn.d_mlp(c, list(_hidden), _acts)
     tr, test_acc, all_acc = nn.train(net, dt, _ep, _print=True, _aim=0.001, _savename=_model)
     tr['out']['outputs'] /= m
@@ -406,7 +412,7 @@ if deeplearn:
         #[64, 128, 16],
         # [64, 32, 32],
         # [
-        #     [64, 64, 64, 64, 64],
+        #     [128, 256, 128],
         #     [64, 256, 256, 128, 32]
         # ],
         # [

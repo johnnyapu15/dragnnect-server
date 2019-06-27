@@ -397,9 +397,11 @@ def heuristic_basic(_data, **arg):
 
     # get vector_origin
     d = v * ((_data['second']['lines'][0][2] + ts1) - (_data['first']['lines'][-1][2] + ts0))
+
     vd = d * (l0 / math.sqrt((l0*l0).sum()))
     vector_origin = vd + e0 - rot_s1
-    ret = Output(alpha, theta, vector_origin)
+    ret = Output(alpha, theta, vector_origin) 
+    ret.ve = v
     velos.append((d, ((_data['second']['lines'][0][2] + ts1) - (_data['first']['lines'][-1][2] + ts0))))
     ret.velos = velos
     return ret
