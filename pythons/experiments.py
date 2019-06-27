@@ -105,7 +105,7 @@ def getTrueDistanceAndTime(_json):
     # v_d = v_o - e0 + s1
     global envs
     true = envs[_json['env']]
-    vd = np.array(true.vo) - _json['first']['lines'][-1][0:2] + _json['second']['lines'][0][0:2]
+    vd = np.array(true.vo) - _json['first']['lines'][-1][0:2] + dr.getRotated(_json['second']['lines'][0][0:2], -true.theta)
     dist = np.sqrt((vd**2).sum())
     time = _json['second']['timestamp'] - (_json['first']['timestamp'] + _json['first']['lines'][-1][2])
     return dist, time
@@ -126,8 +126,14 @@ def trainExp(_json, _trainFunc):
     print(mse)
     print("----------------------------")
     return mse, output
-
-
+def getStdOfData(_json):
+    l1 = 15
+    l2 = 15
+    velos = dr.jsonToTrain(_json, l1, l2)
+    d1std = np.std(velos[0:l1])
+    d2std = np.std(velos[l1:-1])
+    #print(_json['filename'] + '-' + str(d1std)[0:5] + '...' + str(d2std)[0:5])
+    return (d1std, d2std, _json['filename'])
 def plotVelos(_output):
     v = np.transpose(_output.velos)
     g = sorted(v, key=lambda e: e[1])
@@ -179,10 +185,23 @@ print(getMetaData(jsons, rows))
 
 expbasic = False
 deeplearn = False
-getCoef = True
+getCoef = False
+stdvelo = True
 l0 = 13
 l1 = 13
 ## Exp basic
+if stdvelo:
+    stds = []
+    plots = []
+    for i, e in enumerate(j_keys):
+        js_e = jsons[e]
+        for i_j, js in enumerate(js_e):
+            stds.append(getStdOfData(js))
+            plots.append(stds[-1][0:2])
+    plots.sort()
+    plt.plot(plots)
+    plt.show()
+
 if expbasic:
     for e in j_keys:
         MSEs[e] = dict()
@@ -267,12 +286,11 @@ def getOutputFromVelo(_json, _velo):
     l1 = e1 - s1
     theta = dr.getAngleDiff(l0, l1)
     v2 = dr.getRotated(_json['second']['lines'][-1][0:2] - _json['second']['lines'][0][0:2], theta)
-    v3 = (v1 + v2) / 2
-    v3d = np.sqrt((v3 ** 2).sum())
-    vu = v3 / v3d 
+    v1d = np.sqrt((v1 ** 2).sum())
+    vu = v1 / v1d 
     dt = _json['second']['timestamp'] - _json['first']['timestamp'] - _json['first']['lines'][-1][2]
     vd = vu * _velo * dt
-    return dr.Output(1, theta, vd + _json['first']['lines'][-1][0:2] - _json['second']['lines'][0][0:2])
+    return dr.Output(1, theta, vd + _json['first']['lines'][-1][0:2] - dr.getRotated(_json['second']['lines'][0][0:2], theta))
 def printMSE(_MSEs):
     ret = np.zeros((6, 2, 5))
     for i, e in enumerate(_MSEs.keys()):
