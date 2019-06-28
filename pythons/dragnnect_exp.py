@@ -296,6 +296,7 @@ def getMSEVector(_output, _true):
     ret = []
     for i in range(len(t[0])):
         ret.append(np.sqrt((np.mean((t[0:,i] - o[0:,i]) ** 2))))
+        
     return np.array(ret)
         
 # 3. Implemented algorithms

@@ -35,6 +35,7 @@ def printExp(_json, _func, _print=False):
     true.append(d)
     outputlist = output.getNparray().tolist()
     outputlist.append(output.velos[-1][0])
+    distDiff = true[-1] - outputlist[-1]
     mse = dr.getMSEVector(outputlist, true)
     #_devs[0].link(_devs[1], output)
     if _print:
@@ -44,7 +45,7 @@ def printExp(_json, _func, _print=False):
         # print(" " + str(_devs[0].get2dPoints()))
         # print(" " + str(_devs[1].get2dPoints()))
         print("----------------------------")
-    return mse, output
+    return mse, output, distDiff
 
 def loadJsonsFromFolder(_route):
     fileList = [f for f in os.listdir(_route) if os.path.isfile(_route + f)]
@@ -132,8 +133,12 @@ def getStdOfData(_json):
     velos = dr.jsonToTrain(_json, l1, l2)
     d1std = np.std(velos[0:l1])
     d2std = np.std(velos[l1:-1])
+    dastd = np.std(velos[0:-1])
+    d1avg = np.mean(velos[0:l1])
+    d2avg = np.mean(velos[l1:-1])
+    daavg = np.mean(velos[0:-1])
     #print(_json['filename'] + '-' + str(d1std)[0:5] + '...' + str(d2std)[0:5])
-    return (d1std, d2std, _json['filename'])
+    return (d1std, d2std, dastd, d1avg, d2avg, daavg, _json['filename'])
 def plotVelos(_output):
     v = np.transpose(_output.velos)
     g = sorted(v, key=lambda e: e[1])
@@ -184,28 +189,28 @@ print(getMetaData(jsons, rows))
 
 
 expbasic = False
-<<<<<<< HEAD
 deeplearn = False
 getCoef = False
 stdvelo = True
-=======
-deeplearn = True
-getCoef = True
->>>>>>> 3049c69717a3b0cd7fc5c8fece69854f825d8c42
 l0 = 13
 l1 = 13
 ## Exp basic
 if stdvelo:
-    stds = []
-    plots = []
+    
     for i, e in enumerate(j_keys):
         js_e = jsons[e]
+        stds = []
+        plots = []
         for i_j, js in enumerate(js_e):
             stds.append(getStdOfData(js))
-            plots.append(stds[-1][0:2])
-    plots.sort()
-    plt.plot(plots)
-    plt.show()
+            mse, _, _ = printExp(js, dr.heuristic_basic)
+            plots.append([stds[-1][0], mse[-1]/10000])
+        print(plots)
+        print()
+        plots.sort()
+        print(plots)
+        plt.plot(plots)
+        plt.show()
 
 if expbasic:
     for e in j_keys:
