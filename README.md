@@ -8,6 +8,6 @@ To use this server, you need to install the following requirements.
 2. Flask, python library for simple server framework
 3. Flask-socketio, python library for socketio in flask
 4. Numpy, python library for calculating matrix
-5. Tensorflow-1.3.0, python library for neural networks
+5. Tensorflow-1.13.0, python library for neural networks
 
 After installation, you can start server using command 'python server.py' on proper directory.
